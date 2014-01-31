@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Student Droid</string>
+
+    <string name="action_add_homework">Add homework</string>
+    <string name="action_add_exam">Add exam</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="title_section1">Day View</string>
+    <string name="title_section2">Week View</string>
+    <string name="title_section3">Homework &amp; Exams</string>
+    <string name="title_section4">Votes</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+</resources>
