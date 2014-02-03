@@ -1,9 +1,11 @@
 package me.martelli.enrico.studentdroid.sqlite.model;
 
+import me.martelli.enrico.studentdroid.sqlite.helper.DbModel;
+
 /**
  * Created by Enrico on 31/01/14.
  */
-public class Voto {
+public class Voto extends DbModel {
 
     private int id;
     private float voto;

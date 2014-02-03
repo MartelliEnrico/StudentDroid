@@ -13,6 +13,8 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import me.martelli.enrico.studentdroid.sqlite.helper.DatabaseOpenHelper;
+
 public class MainActivity extends Activity {
 
     private static final String CURRENT_FRAGMENT = "current_fragment";
@@ -31,6 +33,8 @@ public class MainActivity extends Activity {
 
     String[] mPages;
 
+    DatabaseOpenHelper db;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,7 +47,11 @@ public class MainActivity extends Activity {
                 getString(R.string.title_section4),
         };
 
+        // title
         mTitle = mPages[0];
+
+        // database!!!
+        db = new DatabaseOpenHelper(getApplicationContext());
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerList = (ListView) findViewById(R.id.drawer_list);

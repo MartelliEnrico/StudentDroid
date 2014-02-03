@@ -14,8 +14,13 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import me.martelli.enrico.studentdroid.sqlite.model.Compito;
 import me.martelli.enrico.studentdroid.sqlite.model.Lezione;
 import me.martelli.enrico.studentdroid.sqlite.model.Materia;
+import me.martelli.enrico.studentdroid.sqlite.model.Reminder;
+import me.martelli.enrico.studentdroid.sqlite.model.Vacanza;
+import me.martelli.enrico.studentdroid.sqlite.model.Verifica;
+import me.martelli.enrico.studentdroid.sqlite.model.Voto;
 
 /**
  * Created by Enrico on 31/01/14.
@@ -34,7 +39,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
     private static final String TABLE_VERIFICA = "verifiche";
     private static final String TABLE_VOTO = "voti";
     private static final String TABLE_REMINDER = "reminders";
-    private static final String TABLE_VANCAZA = "vacanze";
+    private static final String TABLE_VACANZA = "vacanze";
 
     // common columns
     private static final String KEY_ID = "id";
@@ -99,7 +104,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
             + TABLE_VERIFICA + "(" + KEY_ID + ") ON UPDATE CASCADE ON DELETE CASCADE, "
             + KEY_CREATED_AT + " DATETIME);";
 
-    private static final String CREATE_TABLE_VACANZA = "CREATE TABLE " + TABLE_COMPITO + "("
+    private static final String CREATE_TABLE_VACANZA = "CREATE TABLE " + TABLE_VACANZA + "("
             + KEY_ID + " INTEGER PRIMARY KEY, " + KEY_GIORNO_INIZIO + " DATETIME, "
             + KEY_GIORNO_FINE + " DATETIME, " + KEY_CREATED_AT + " DATETIME);";
 
@@ -122,7 +127,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         // on upgrade drop older tables
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_VANCAZA);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_VACANZA);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_REMINDER);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_VOTO);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_VERIFICA);
@@ -140,6 +145,46 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
         return dateFormat.format(date);
     }
 
+    public long create(Object model) {
+        if(model instanceof Materia) {
+            return createMateria((Materia) model);
+        } else if(model instanceof Lezione) {
+            return createLezione((Lezione) model);
+        } else if(model instanceof Compito) {
+            return createCompito((Compito) model);
+        } else if(model instanceof Verifica) {
+            return createVerifica((Verifica) model);
+        } else if(model instanceof Voto) {
+            return createVoto((Voto) model);
+        } else if(model instanceof Reminder) {
+            return createReminder((Reminder) model);
+        } else if(model instanceof Vacanza) {
+            return createVacanza((Vacanza) model);
+        } else {
+            return -1;
+        }
+    }
+
+    public int update(Object model) {
+        if(model instanceof Materia) {
+            return updateMateria((Materia) model);
+        } else if(model instanceof Lezione) {
+            return updateLezione((Lezione) model);
+        } else if(model instanceof Compito) {
+            return updateCompito((Compito) model);
+        } else if(model instanceof Verifica) {
+            return updateVerifica((Verifica) model);
+        } else if(model instanceof Voto) {
+            return updateVoto((Voto) model);
+        } else if(model instanceof Reminder) {
+            return updateReminder((Reminder) model);
+        } else if(model instanceof Vacanza) {
+            return updateVacanza((Vacanza) model);
+        } else {
+            return 0;
+        }
+    }
+
     // CRUD
 
     public long createMateria(Materia materia) {
@@ -154,10 +199,10 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
         return db.insert(TABLE_MATERIA, null, values);
     }
 
-    public Materia getMateria(long idMateria) {
+    public Materia getMateria(long id) {
         SQLiteDatabase db = this.getReadableDatabase();
 
-        String selectQuery = "SELECT * FROM " + TABLE_MATERIA + " WHERE " + KEY_ID + " = " + idMateria;
+        String selectQuery = "SELECT * FROM " + TABLE_MATERIA + " WHERE " + KEY_ID + " = " + id;
 
         Log.e(LOG, selectQuery);
 
@@ -171,6 +216,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
         materia.setNomeProfessore(c.getString(c.getColumnIndex(KEY_NOME_PROFESSORE)));
         materia.setDescrizione(c.getString(c.getColumnIndex(KEY_DESCRIZIONE)));
         materia.setColore(c.getInt(c.getColumnIndex(KEY_COLORE)));
+        materia.setSaved(true);
 
         return materia;
     }
@@ -193,6 +239,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
                 materia.setNomeProfessore(c.getString(c.getColumnIndex(KEY_NOME_PROFESSORE)));
                 materia.setDescrizione(c.getString(c.getColumnIndex(KEY_DESCRIZIONE)));
                 materia.setColore(c.getInt(c.getColumnIndex(KEY_COLORE)));
+                materia.setSaved(true);
 
                 materie.add(materia);
             } while(c.moveToNext());
@@ -215,11 +262,11 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
         });
     }
 
-    public void deleteMateria(long idMateria) {
+    public void deleteMateria(long id) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         db.delete(TABLE_MATERIA, KEY_ID + " = ?", new String[] {
-                String.valueOf(idMateria)
+                String.valueOf(id)
         });
     }
 
@@ -231,16 +278,16 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
         values.put(KEY_ORA_INIZIO, lezione.getInizio());
         values.put(KEY_ORA_FINE, lezione.getFine());
         values.put(KEY_CLASSE, lezione.getClasse());
-        values.put(KEY_DESCRIZIONE, lezione.getClasse());
+        values.put(KEY_DESCRIZIONE, lezione.getDescrizione());
         values.put(KEY_ID_MATERIA, lezione.getIdMateria());
 
         return db.insert(TABLE_LEZIONE, null, values);
     }
 
-    public Lezione getLezione(long idLezione) {
+    public Lezione getLezione(long id) {
         SQLiteDatabase db = this.getReadableDatabase();
 
-        String selectQuery = "SELECT * FROM " + TABLE_LEZIONE + " WHERE " + KEY_ID + " = " + idLezione;
+        String selectQuery = "SELECT * FROM " + TABLE_LEZIONE + " WHERE " + KEY_ID + " = " + id;
 
         Log.e(LOG, selectQuery);
 
@@ -256,6 +303,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
         lezione.setClasse(c.getString(c.getColumnIndex(KEY_CLASSE)));
         lezione.setDescrizione(c.getString(c.getColumnIndex(KEY_DESCRIZIONE)));
         lezione.setIdMateria(c.getInt(c.getColumnIndex(KEY_ID_MATERIA)));
+        lezione.setSaved(true);
 
         return lezione;
     }
@@ -280,6 +328,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
                 lezione.setClasse(c.getString(c.getColumnIndex(KEY_CLASSE)));
                 lezione.setDescrizione(c.getString(c.getColumnIndex(KEY_DESCRIZIONE)));
                 lezione.setIdMateria(c.getInt(c.getColumnIndex(KEY_ID_MATERIA)));
+                lezione.setSaved(true);
 
                 lezioni.add(lezione);
             } while(c.moveToNext());
@@ -296,7 +345,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
         values.put(KEY_ORA_INIZIO, lezione.getInizio());
         values.put(KEY_ORA_FINE, lezione.getFine());
         values.put(KEY_CLASSE, lezione.getClasse());
-        values.put(KEY_DESCRIZIONE, lezione.getClasse());
+        values.put(KEY_DESCRIZIONE, lezione.getDescrizione());
         values.put(KEY_ID_MATERIA, lezione.getIdMateria());
 
         return db.update(TABLE_LEZIONE, values, KEY_ID + " = ?", new String[] {
@@ -304,13 +353,402 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
         });
     }
 
-    public void deleteLezione(long idLezione) {
+    public void deleteLezione(long id) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         db.delete(TABLE_LEZIONE, KEY_ID + " = ?", new String[] {
-                String.valueOf(idLezione)
+                String.valueOf(id)
         });
     }
 
-    // TODO: finire i metodi per COMPITO, VERIFICA, VOTO, REMINDER e VACANZA
+    public long createCompito(Compito compito) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(KEY_GIORNO, compito.getGiorno());
+        values.put(KEY_DESCRIZIONE, compito.getDescrizione());
+        values.put(KEY_ID_LEZIONE, compito.getIdLezione());
+
+        return db.insert(TABLE_COMPITO, null, values);
+    }
+
+    public Compito getCompito(long id) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String selectQuery = "SELECT * FROM " + TABLE_COMPITO + " WHERE " + KEY_ID + " = " + id;
+
+        Log.e(LOG, selectQuery);
+
+        Cursor c = db.rawQuery(selectQuery, null);
+
+        if (c != null) c.moveToFirst();
+
+        Compito compito = new Compito();
+        compito.setId(c.getInt(c.getColumnIndex(KEY_ID)));
+        compito.setGiorno(c.getInt(c.getColumnIndex(KEY_GIORNO)));
+        compito.setDescrizione(c.getString(c.getColumnIndex(KEY_DESCRIZIONE)));
+        compito.setIdLezione(c.getInt(c.getColumnIndex(KEY_ID_LEZIONE)));
+        compito.setSaved(true);
+
+        return compito;
+    }
+
+    public List<Compito> getAllCompiti() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        List<Compito> compiti = new ArrayList<Compito>();
+
+        String selectQuery = "SELECT * FROM " + TABLE_COMPITO;
+
+        Log.e(LOG, selectQuery);
+
+        Cursor c = db.rawQuery(selectQuery, null);
+
+        if(c.moveToFirst()) {
+            do {
+                Compito compito = new Compito();
+                compito.setId(c.getInt(c.getColumnIndex(KEY_ID)));
+                compito.setGiorno(c.getInt(c.getColumnIndex(KEY_GIORNO)));
+                compito.setDescrizione(c.getString(c.getColumnIndex(KEY_DESCRIZIONE)));
+                compito.setIdLezione(c.getInt(c.getColumnIndex(KEY_ID_LEZIONE)));
+                compito.setSaved(true);
+
+                compiti.add(compito);
+            } while(c.moveToNext());
+        }
+
+        return compiti;
+    }
+
+    public int updateCompito(Compito compito) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(KEY_GIORNO, compito.getGiorno());
+        values.put(KEY_DESCRIZIONE, compito.getDescrizione());
+        values.put(KEY_ID_LEZIONE, compito.getIdLezione());
+
+        return db.update(TABLE_COMPITO, values, KEY_ID + " = ?", new String[] {
+                String.valueOf(compito.getId())
+        });
+    }
+
+    public void deleteCompito(long id) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        db.delete(TABLE_COMPITO, KEY_ID + " = ?", new String[] {
+                String.valueOf(id)
+        });
+    }
+
+    public long createVerifica(Verifica verifica) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(KEY_GIORNO, verifica.getGiorno());
+        values.put(KEY_TIPOLOGIA, verifica.getTipologia());
+        values.put(KEY_ID_LEZIONE, verifica.getIdLezione());
+
+        return db.insert(TABLE_VERIFICA, null, values);
+    }
+
+    public Verifica getVerifica(long id) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String selectQuery = "SELECT * FROM " + TABLE_VERIFICA + " WHERE " + KEY_ID + " = " + id;
+
+        Log.e(LOG, selectQuery);
+
+        Cursor c = db.rawQuery(selectQuery, null);
+
+        if (c != null) c.moveToFirst();
+
+        Verifica verifica = new Verifica();
+        verifica.setId(c.getInt(c.getColumnIndex(KEY_ID)));
+        verifica.setGiorno(c.getInt(c.getColumnIndex(KEY_GIORNO)));
+        verifica.setTipologia(c.getString(c.getColumnIndex(KEY_TIPOLOGIA)));
+        verifica.setIdLezione(c.getInt(c.getColumnIndex(KEY_ID_LEZIONE)));
+        verifica.setSaved(true);
+
+        return verifica;
+    }
+
+    public List<Verifica> getAllVerifiche() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        List<Verifica> verifiche = new ArrayList<Verifica>();
+
+        String selectQuery = "SELECT * FROM " + TABLE_VERIFICA;
+
+        Log.e(LOG, selectQuery);
+
+        Cursor c = db.rawQuery(selectQuery, null);
+
+        if(c.moveToFirst()) {
+            do {
+                Verifica verifica = new Verifica();
+                verifica.setId(c.getInt(c.getColumnIndex(KEY_ID)));
+                verifica.setGiorno(c.getInt(c.getColumnIndex(KEY_GIORNO)));
+                verifica.setTipologia(c.getString(c.getColumnIndex(KEY_TIPOLOGIA)));
+                verifica.setIdLezione(c.getInt(c.getColumnIndex(KEY_ID_LEZIONE)));
+                verifica.setSaved(true);
+
+                verifiche.add(verifica);
+            } while(c.moveToNext());
+        }
+
+        return verifiche;
+    }
+
+    public int updateVerifica(Verifica verifica) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(KEY_GIORNO, verifica.getGiorno());
+        values.put(KEY_TIPOLOGIA, verifica.getTipologia());
+        values.put(KEY_ID_LEZIONE, verifica.getIdLezione());
+
+        return db.update(TABLE_VERIFICA, values, KEY_ID + " = ?", new String[] {
+                String.valueOf(verifica.getId())
+        });
+    }
+
+    public void deleteVerifica(long id) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        db.delete(TABLE_VERIFICA, KEY_ID + " = ?", new String[] {
+                String.valueOf(id)
+        });
+    }
+
+    public long createVoto(Voto voto) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(KEY_VOTO, voto.getVoto());
+        values.put(KEY_TIPOLOGIA, voto.getTipologia());
+        values.put(KEY_DESCRIZIONE, voto.getDescrizione());
+        values.put(KEY_ID_MATERIA, voto.getIdMateria());
+
+        return db.insert(TABLE_VOTO, null, values);
+    }
+
+    public Voto getVoto(long id) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String selectQuery = "SELECT * FROM " + TABLE_VOTO + " WHERE " + KEY_ID + " = " + id;
+
+        Log.e(LOG, selectQuery);
+
+        Cursor c = db.rawQuery(selectQuery, null);
+
+        if (c != null) c.moveToFirst();
+
+        Voto voto = new Voto();
+        voto.setId(c.getInt(c.getColumnIndex(KEY_ID)));
+        voto.setVoto(c.getInt(c.getColumnIndex(KEY_VOTO)));
+        voto.setTipologia(c.getString(c.getColumnIndex(KEY_TIPOLOGIA)));
+        voto.setDescrizione(c.getString(c.getColumnIndex(KEY_DESCRIZIONE)));
+        voto.setIdMateria(c.getInt(c.getColumnIndex(KEY_ID_MATERIA)));
+        voto.setSaved(true);
+
+        return voto;
+    }
+
+    public List<Voto> getAllVoti() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        List<Voto> voti = new ArrayList<Voto>();
+
+        String selectQuery = "SELECT * FROM " + TABLE_VOTO;
+
+        Log.e(LOG, selectQuery);
+
+        Cursor c = db.rawQuery(selectQuery, null);
+
+        if(c.moveToFirst()) {
+            do {
+                Voto voto = new Voto();
+                voto.setId(c.getInt(c.getColumnIndex(KEY_ID)));
+                voto.setVoto(c.getInt(c.getColumnIndex(KEY_VOTO)));
+                voto.setTipologia(c.getString(c.getColumnIndex(KEY_TIPOLOGIA)));
+                voto.setDescrizione(c.getString(c.getColumnIndex(KEY_DESCRIZIONE)));
+                voto.setIdMateria(c.getInt(c.getColumnIndex(KEY_ID_MATERIA)));
+                voto.setSaved(true);
+
+                voti.add(voto);
+            } while(c.moveToNext());
+        }
+
+        return voti;
+    }
+
+    public int updateVoto(Voto voto) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(KEY_VOTO, voto.getVoto());
+        values.put(KEY_TIPOLOGIA, voto.getTipologia());
+        values.put(KEY_DESCRIZIONE, voto.getDescrizione());
+        values.put(KEY_ID_MATERIA, voto.getIdMateria());
+
+        return db.update(TABLE_VOTO, values, KEY_ID + " = ?", new String[] {
+                String.valueOf(voto.getId())
+        });
+    }
+
+    public void deleteVoto(long id) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        db.delete(TABLE_VOTO, KEY_ID + " = ?", new String[] {
+                String.valueOf(id)
+        });
+    }
+
+    public long createReminder(Reminder reminder) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(KEY_ID_VERIFICA, reminder.getIdVerifica());
+
+        return db.insert(TABLE_REMINDER, null, values);
+    }
+
+    public Reminder getReminder(long id) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String selectQuery = "SELECT * FROM " + TABLE_REMINDER + " WHERE " + KEY_ID + " = " + id;
+
+        Log.e(LOG, selectQuery);
+
+        Cursor c = db.rawQuery(selectQuery, null);
+
+        if (c != null) c.moveToFirst();
+
+        Reminder reminder = new Reminder();
+        reminder.setId(c.getInt(c.getColumnIndex(KEY_ID)));
+        reminder.setIdVerifica(c.getInt(c.getColumnIndex(KEY_ID_VERIFICA)));
+        reminder.setSaved(true);
+
+        return reminder;
+    }
+
+    public List<Reminder> getAllReminder() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        List<Reminder> reminders = new ArrayList<Reminder>();
+
+        String selectQuery = "SELECT * FROM " + TABLE_REMINDER;
+
+        Log.e(LOG, selectQuery);
+
+        Cursor c = db.rawQuery(selectQuery, null);
+
+        if(c.moveToFirst()) {
+            do {
+                Reminder reminder = new Reminder();
+                reminder.setId(c.getInt(c.getColumnIndex(KEY_ID)));
+                reminder.setIdVerifica(c.getInt(c.getColumnIndex(KEY_ID_VERIFICA)));
+                reminder.setSaved(true);
+
+                reminders.add(reminder);
+            } while(c.moveToNext());
+        }
+
+        return reminders;
+    }
+
+    public int updateReminder(Reminder reminder) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(KEY_ID_VERIFICA, reminder.getIdVerifica());
+
+        return db.update(TABLE_REMINDER, values, KEY_ID + " = ?", new String[] {
+                String.valueOf(reminder.getId())
+        });
+    }
+
+    public void deleteReminder(long id) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        db.delete(TABLE_REMINDER, KEY_ID + " = ?", new String[] {
+                String.valueOf(id)
+        });
+    }
+
+    public long createVacanza(Vacanza vacanza) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(KEY_GIORNO_INIZIO, vacanza.getInizio());
+        values.put(KEY_GIORNO_FINE, vacanza.getFine());
+        values.put(KEY_DESCRIZIONE, vacanza.getDescrizione());
+
+        return db.insert(TABLE_VACANZA, null, values);
+    }
+
+    public Vacanza getVacanza(long id) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String selectQuery = "SELECT * FROM " + TABLE_VACANZA + " WHERE " + KEY_ID + " = " + id;
+
+        Log.e(LOG, selectQuery);
+
+        Cursor c = db.rawQuery(selectQuery, null);
+
+        if (c != null) c.moveToFirst();
+
+        Vacanza vacanza = new Vacanza();
+        vacanza.setId(c.getInt(c.getColumnIndex(KEY_ID)));
+        vacanza.setInizio(c.getInt(c.getColumnIndex(KEY_GIORNO_INIZIO)));
+        vacanza.setFine(c.getInt(c.getColumnIndex(KEY_GIORNO_FINE)));
+        vacanza.setDescrizione(c.getString(c.getColumnIndex(KEY_DESCRIZIONE)));
+        vacanza.setSaved(true);
+
+        return vacanza;
+    }
+
+    public List<Vacanza> getAllVacanze() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        List<Vacanza> vacanze = new ArrayList<Vacanza>();
+
+        String selectQuery = "SELECT * FROM " + TABLE_VACANZA;
+
+        Log.e(LOG, selectQuery);
+
+        Cursor c = db.rawQuery(selectQuery, null);
+
+        if(c.moveToFirst()) {
+            do {
+                Vacanza vacanza = new Vacanza();
+                vacanza.setId(c.getInt(c.getColumnIndex(KEY_ID)));
+                vacanza.setInizio(c.getInt(c.getColumnIndex(KEY_GIORNO_INIZIO)));
+                vacanza.setFine(c.getInt(c.getColumnIndex(KEY_GIORNO_FINE)));
+                vacanza.setDescrizione(c.getString(c.getColumnIndex(KEY_DESCRIZIONE)));
+                vacanza.setSaved(true);
+
+                vacanze.add(vacanza);
+            } while(c.moveToNext());
+        }
+
+        return vacanze;
+    }
+
+    public int updateVacanza(Vacanza vacanza) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(KEY_GIORNO_INIZIO, vacanza.getInizio());
+        values.put(KEY_GIORNO_FINE, vacanza.getFine());
+        values.put(KEY_DESCRIZIONE, vacanza.getDescrizione());
+
+        return db.update(TABLE_VACANZA, values, KEY_ID + " = ?", new String[] {
+                String.valueOf(vacanza.getId())
+        });
+    }
+
+    public void deleteVacanza(long id) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        db.delete(TABLE_VACANZA, KEY_ID + " = ?", new String[] {
+                String.valueOf(id)
+        });
+    }
 }

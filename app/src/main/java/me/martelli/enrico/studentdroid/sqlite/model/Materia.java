@@ -1,15 +1,19 @@
 package me.martelli.enrico.studentdroid.sqlite.model;
 
+import me.martelli.enrico.studentdroid.sqlite.helper.DbModel;
+
 /**
  * Created by Enrico on 31/01/14.
  */
-public class Materia {
+public class Materia extends DbModel {
 
     private int id;
     private String nome;
     private String nome_professore;
     private String descrizione;
     private int colore;
+
+    private boolean saved = false;
 
     public Materia() {}
 
