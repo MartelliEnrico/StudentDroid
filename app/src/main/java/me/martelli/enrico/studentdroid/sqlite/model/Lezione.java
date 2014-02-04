@@ -1,5 +1,10 @@
 package me.martelli.enrico.studentdroid.sqlite.model;
 
+import java.util.Date;
+import java.util.List;
+
+import me.martelli.enrico.studentdroid.MyApplication;
+import me.martelli.enrico.studentdroid.sqlite.helper.DatabaseOpenHelper;
 import me.martelli.enrico.studentdroid.sqlite.helper.DbModel;
 
 /**
@@ -7,17 +12,16 @@ import me.martelli.enrico.studentdroid.sqlite.helper.DbModel;
  */
 public class Lezione extends DbModel {
 
-    private int id;
-    private int giorno;
-    private int inizio;
-    private int fine;
+    private Date giorno;
+    private Date inizio;
+    private Date fine;
     private String classe;
     private String descrizione;
     private int idMateria;
 
     public Lezione() {}
 
-    public Lezione(int giorno, int inizio, int fine, String classe, String descrizione, int idMateria) {
+    public Lezione(Date giorno, Date inizio, Date fine, String classe, String descrizione, int idMateria) {
         this.giorno = giorno;
         this.inizio = inizio;
         this.fine = fine;
@@ -26,29 +30,15 @@ public class Lezione extends DbModel {
         this.idMateria = idMateria;
     }
 
-    public Lezione(int id, int giorno, int inizio, int fine, String classe, String descrizione, int idMateria) {
-        this.id = id;
-        this.giorno = giorno;
-        this.inizio = inizio;
-        this.fine = fine;
-        this.classe = classe;
-        this.descrizione = descrizione;
-        this.idMateria = idMateria;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public void setGiorno(int giorno) {
+    public void setGiorno(Date giorno) {
         this.giorno = giorno;
     }
 
-    public void setInizio(int inizio) {
+    public void setInizio(Date inizio) {
         this.inizio = inizio;
     }
 
-    public void setFine(int fine) {
+    public void setFine(Date fine) {
         this.fine = fine;
     }
 
@@ -64,19 +54,15 @@ public class Lezione extends DbModel {
         this.idMateria = idMateria;
     }
 
-    public int getId() {
-        return id;
-    }
-
-    public int getGiorno() {
+    public Date getGiorno() {
         return giorno;
     }
 
-    public int getInizio() {
+    public Date getInizio() {
         return inizio;
     }
 
-    public int getFine() {
+    public Date getFine() {
         return fine;
     }
 
@@ -90,5 +76,17 @@ public class Lezione extends DbModel {
 
     public int getIdMateria() {
         return idMateria;
+    }
+
+    public static Lezione find(long id) {
+        DatabaseOpenHelper db = new DatabaseOpenHelper(MyApplication.getAppContext());
+
+        return db.getLezione(id);
+    }
+
+    public static List<Lezione> all() {
+        DatabaseOpenHelper db = new DatabaseOpenHelper(MyApplication.getAppContext());
+
+        return db.getAllLezioni();
     }
 }

@@ -5,32 +5,35 @@ import me.martelli.enrico.studentdroid.MyApplication;
 /**
  * Created by Enrico on 03/02/14.
  */
-public class DbModel {
+public abstract class DbModel {
 
-    private boolean pSaved = false;
-    private int id;
+    private long id;
 
-    public int save() {
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void save() {
         DatabaseOpenHelper db = new DatabaseOpenHelper(MyApplication.getAppContext());
-        int mId = this.id;
 
-        if(!pSaved) {
-            pSaved = true;
-            // create a new db object
-            mId = (int) db.create(this);
+        if(id == 0L) {
+            this.id = db.create(this);
         } else {
-            // update current object
             db.update(this);
         }
-
-        return mId;
     }
 
-    public void setSaved(boolean saved) {
-        this.pSaved = saved;
+    public void delete() {
+        DatabaseOpenHelper db = new DatabaseOpenHelper(MyApplication.getAppContext());
+
+        db.delete(this);
     }
 
-    public boolean getSaved() {
-        return pSaved;
-    }
+    // public static DbModel find(long id);
+
+    // public static List<DbModel> all();
 }

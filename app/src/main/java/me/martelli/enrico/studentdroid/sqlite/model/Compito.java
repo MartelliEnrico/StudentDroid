@@ -1,5 +1,10 @@
 package me.martelli.enrico.studentdroid.sqlite.model;
 
+import java.util.Date;
+import java.util.List;
+
+import me.martelli.enrico.studentdroid.MyApplication;
+import me.martelli.enrico.studentdroid.sqlite.helper.DatabaseOpenHelper;
 import me.martelli.enrico.studentdroid.sqlite.helper.DbModel;
 
 /**
@@ -7,31 +12,19 @@ import me.martelli.enrico.studentdroid.sqlite.helper.DbModel;
  */
 public class Compito extends DbModel {
 
-    private int id;
-    private int giorno;
+    private Date giorno;
     private String descrizione;
     private int idLezione;
 
     public Compito() {}
 
-    public Compito(int giorno, String descrizione, int idLezione) {
+    public Compito(Date giorno, String descrizione, int idLezione) {
         this.giorno = giorno;
         this.descrizione = descrizione;
         this.idLezione = idLezione;
     }
 
-    public Compito(int id, int giorno, String descrizione, int idLezione) {
-        this.id = id;
-        this.giorno = giorno;
-        this.descrizione = descrizione;
-        this.idLezione = idLezione;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public void setGiorno(int giorno) {
+    public void setGiorno(Date giorno) {
         this.giorno = giorno;
     }
 
@@ -43,11 +36,7 @@ public class Compito extends DbModel {
         this.idLezione = idLezione;
     }
 
-    public int getId() {
-        return id;
-    }
-
-    public int getGiorno() {
+    public Date getGiorno() {
         return giorno;
     }
 
@@ -57,5 +46,17 @@ public class Compito extends DbModel {
 
     public int getIdLezione() {
         return idLezione;
+    }
+
+    public static Compito find(long id) {
+        DatabaseOpenHelper db = new DatabaseOpenHelper(MyApplication.getAppContext());
+
+        return db.getCompito(id);
+    }
+
+    public static List<Compito> all() {
+        DatabaseOpenHelper db = new DatabaseOpenHelper(MyApplication.getAppContext());
+
+        return db.getAllCompiti();
     }
 }

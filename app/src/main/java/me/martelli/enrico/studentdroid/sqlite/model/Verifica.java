@@ -1,5 +1,10 @@
 package me.martelli.enrico.studentdroid.sqlite.model;
 
+import java.util.Date;
+import java.util.List;
+
+import me.martelli.enrico.studentdroid.MyApplication;
+import me.martelli.enrico.studentdroid.sqlite.helper.DatabaseOpenHelper;
 import me.martelli.enrico.studentdroid.sqlite.helper.DbModel;
 
 /**
@@ -7,31 +12,19 @@ import me.martelli.enrico.studentdroid.sqlite.helper.DbModel;
  */
 public class Verifica extends DbModel {
 
-    private int id;
-    private int giorno;
+    private Date giorno;
     private String tipologia;
     private int idLezione;
 
     public Verifica() {}
 
-    public Verifica(int giorno, String tipologia, int idLezione) {
+    public Verifica(Date giorno, String tipologia, int idLezione) {
         this.giorno = giorno;
         this.tipologia = tipologia;
         this.idLezione = idLezione;
     }
 
-    public Verifica(int id, int giorno, String tipologia, int idLezione) {
-        this.id = id;
-        this.giorno = giorno;
-        this.tipologia = tipologia;
-        this.idLezione = idLezione;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public void setGiorno(int giorno) {
+    public void setGiorno(Date giorno) {
         this.giorno = giorno;
     }
 
@@ -43,11 +36,7 @@ public class Verifica extends DbModel {
         this.idLezione = idLezione;
     }
 
-    public int getId() {
-        return id;
-    }
-
-    public int getGiorno() {
+    public Date getGiorno() {
         return giorno;
     }
 
@@ -57,5 +46,17 @@ public class Verifica extends DbModel {
 
     public int getIdLezione() {
         return idLezione;
+    }
+
+    public static Verifica find(long id) {
+        DatabaseOpenHelper db = new DatabaseOpenHelper(MyApplication.getAppContext());
+
+        return db.getVerifica(id);
+    }
+
+    public static List<Verifica> all() {
+        DatabaseOpenHelper db = new DatabaseOpenHelper(MyApplication.getAppContext());
+
+        return db.getAllVerifiche();
     }
 }

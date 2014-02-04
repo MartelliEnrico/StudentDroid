@@ -1,5 +1,10 @@
 package me.martelli.enrico.studentdroid.sqlite.model;
 
+import java.util.Date;
+import java.util.List;
+
+import me.martelli.enrico.studentdroid.MyApplication;
+import me.martelli.enrico.studentdroid.sqlite.helper.DatabaseOpenHelper;
 import me.martelli.enrico.studentdroid.sqlite.helper.DbModel;
 
 /**
@@ -7,35 +12,23 @@ import me.martelli.enrico.studentdroid.sqlite.helper.DbModel;
  */
 public class Vacanza extends DbModel {
 
-    private int id;
-    private int inizio;
-    private int fine;
+    private Date inizio;
+    private Date fine;
     private String descrizione;
 
     public Vacanza() {}
 
-    public Vacanza(int inizio, int fine, String descrizione) {
+    public Vacanza(Date inizio, Date fine, String descrizione) {
         this.inizio = inizio;
         this.fine = fine;
         this.descrizione = descrizione;
     }
 
-    public Vacanza(int id, int inizio, int fine, String descrizione) {
-        this.id = id;
-        this.inizio = inizio;
-        this.fine = fine;
-        this.descrizione = descrizione;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public void setInizio(int inizio) {
+    public void setInizio(Date inizio) {
         this.inizio = inizio;
     }
 
-    public void setFine(int fine) {
+    public void setFine(Date fine) {
         this.fine = fine;
     }
 
@@ -43,19 +36,27 @@ public class Vacanza extends DbModel {
         this.descrizione = descrizione;
     }
 
-    public int getId() {
-        return id;
-    }
-
-    public int getInizio() {
+    public Date getInizio() {
         return inizio;
     }
 
-    public int getFine() {
+    public Date getFine() {
         return fine;
     }
 
     public String getDescrizione() {
         return descrizione;
+    }
+
+    public static Vacanza find(long id) {
+        DatabaseOpenHelper db = new DatabaseOpenHelper(MyApplication.getAppContext());
+
+        return db.getVacanza(id);
+    }
+
+    public static List<Vacanza> all() {
+        DatabaseOpenHelper db = new DatabaseOpenHelper(MyApplication.getAppContext());
+
+        return db.getAllVacanze();
     }
 }

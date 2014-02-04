@@ -1,5 +1,9 @@
 package me.martelli.enrico.studentdroid.sqlite.model;
 
+import java.util.List;
+
+import me.martelli.enrico.studentdroid.MyApplication;
+import me.martelli.enrico.studentdroid.sqlite.helper.DatabaseOpenHelper;
 import me.martelli.enrico.studentdroid.sqlite.helper.DbModel;
 
 /**
@@ -7,7 +11,6 @@ import me.martelli.enrico.studentdroid.sqlite.helper.DbModel;
  */
 public class Reminder extends DbModel {
 
-    private int id;
     private int idVerifica;
 
     public Reminder() {}
@@ -16,24 +19,23 @@ public class Reminder extends DbModel {
         this.idVerifica = idVerifica;
     }
 
-    public Reminder(int id, int idVerifica) {
-        this.id = id;
-        this.idVerifica = idVerifica;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
     public void setIdVerifica(int idVerifica) {
         this.idVerifica = idVerifica;
     }
 
-    public int getId() {
-        return id;
-    }
-
     public int getIdVerifica() {
         return idVerifica;
+    }
+
+    public static Reminder find(long id) {
+        DatabaseOpenHelper db = new DatabaseOpenHelper(MyApplication.getAppContext());
+
+        return db.getReminder(id);
+    }
+
+    public static List<Reminder> all() {
+        DatabaseOpenHelper db = new DatabaseOpenHelper(MyApplication.getAppContext());
+
+        return db.getAllReminders();
     }
 }

@@ -1,5 +1,9 @@
 package me.martelli.enrico.studentdroid.sqlite.model;
 
+import java.util.List;
+
+import me.martelli.enrico.studentdroid.MyApplication;
+import me.martelli.enrico.studentdroid.sqlite.helper.DatabaseOpenHelper;
 import me.martelli.enrico.studentdroid.sqlite.helper.DbModel;
 
 /**
@@ -7,7 +11,6 @@ import me.martelli.enrico.studentdroid.sqlite.helper.DbModel;
  */
 public class Materia extends DbModel {
 
-    private int id;
     private String nome;
     private String nome_professore;
     private String descrizione;
@@ -22,18 +25,6 @@ public class Materia extends DbModel {
         this.nome_professore = nome_professore;
         this.descrizione = descrizione;
         this.colore = colore;
-    }
-
-    public Materia(int id, String nome, String nome_professore, String descrizione, int colore) {
-        this.id = id;
-        this.nome = nome;
-        this.nome_professore = nome_professore;
-        this.descrizione = descrizione;
-        this.colore = colore;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public void setNome(String nome) {
@@ -52,10 +43,6 @@ public class Materia extends DbModel {
         this.colore = colore;
     }
 
-    public int getId() {
-        return id;
-    }
-
     public String getNome() {
         return nome;
     }
@@ -70,5 +57,17 @@ public class Materia extends DbModel {
 
     public int getColore() {
         return colore;
+    }
+
+    public static Materia find(long id) {
+        DatabaseOpenHelper db = new DatabaseOpenHelper(MyApplication.getAppContext());
+
+        return db.getMateria(id);
+    }
+
+    public static List<Materia> all() {
+        DatabaseOpenHelper db = new DatabaseOpenHelper(MyApplication.getAppContext());
+
+        return db.getAllMaterie();
     }
 }

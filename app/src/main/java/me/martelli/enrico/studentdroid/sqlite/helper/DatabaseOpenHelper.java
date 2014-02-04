@@ -8,6 +8,10 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import java.text.DateFormat;
+import java.text.FieldPosition;
+import java.text.ParseException;
+import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -73,40 +77,42 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
     private static final String CREATE_TABLE_MATERIA = "CREATE TABLE " + TABLE_MATERIA + "("
             + KEY_ID + " INTEGER PRIMARY KEY, " + KEY_NOME + " TEXT, " + KEY_NOME_PROFESSORE
             + " TEXT, " + KEY_DESCRIZIONE + " TEXT, " + KEY_COLORE + " INTEGER, " + KEY_CREATED_AT
-            + " DATETIME);";
+            + " DATETIME DEFAULT CURRENT_TIMESTAMP);";
 
     private static final String CREATE_TABLE_LEZIONE = "CREATE TABLE " + TABLE_LEZIONE + "("
-            + KEY_ID + " INTEGER PRIMARY KEY, " + KEY_GIORNO + " DATETIME, " + KEY_ORA_FINE
-            + " DATETIME, " + KEY_ORA_INIZIO + " DATETIME, " + KEY_CLASSE + " TEXT, "
+            + KEY_ID + " INTEGER PRIMARY KEY, " + KEY_GIORNO + " INTEGER, " + KEY_ORA_FINE
+            + " INTEGER, " + KEY_ORA_INIZIO + " INTEGER, " + KEY_CLASSE + " TEXT, "
             + KEY_DESCRIZIONE + " TEXT, " + KEY_ID_MATERIA + " INTEGER REFERENCE " + TABLE_MATERIA
             + "(" + KEY_ID + ") ON UPDATE CASCADE ON DELETE CASCADE, " + KEY_CREATED_AT
-            + " DATETIME);";
+            + " DATETIME DEFAULT CURRENT_TIMESTAMP);";
 
     private static final String CREATE_TABLE_COMPITO = "CREATE TABLE " + TABLE_COMPITO + "("
-            + KEY_ID + " INTEGER PRIMARY KEY, " + KEY_GIORNO + " DATETIME, " + KEY_DESCRIZIONE
+            + KEY_ID + " INTEGER PRIMARY KEY, " + KEY_GIORNO + " INTEGER, " + KEY_DESCRIZIONE
             + " TEXT, " + KEY_ID_LEZIONE + " INTEGER REFERENCE " + TABLE_LEZIONE + "(" + KEY_ID
-            + ") ON UPDATE CASCADE ON DELETE CASCADE, " + KEY_CREATED_AT + " DATETIME);";
+            + ") ON UPDATE CASCADE ON DELETE CASCADE, " + KEY_CREATED_AT + " DATETIME DEFAULT"
+            + " CURRENT_TIMESTAMP);";
 
     private static final String CREATE_TABLE_VERIFICA = "CREATE TABLE " + TABLE_VERIFICA + "("
-            + KEY_ID + " INTEGER PRIMARY KEY, " + KEY_GIORNO + " DATETIME, " + KEY_TIPOLOGIA
+            + KEY_ID + " INTEGER PRIMARY KEY, " + KEY_GIORNO + " INTEGER, " + KEY_TIPOLOGIA
             + " TEXT, " + KEY_DESCRIZIONE + " TEXT, " + KEY_ID_LEZIONE + " INTEGER REFERENCE "
             + TABLE_LEZIONE + "(" + KEY_ID + ") ON UPDATE CASCADE ON DELETE CASCADE, "
-            + KEY_CREATED_AT + " DATETIME);";
+            + KEY_CREATED_AT + " DATETIME DEFAULT CURRENT_TIMESTAMP);";
 
     private static final String CREATE_TABLE_VOTO = "CREATE TABLE " + TABLE_VOTO + "(" + KEY_ID
-            + " INTEGER PRIMARY KEY, " + KEY_GIORNO + " DATETIME, " + KEY_VOTO + " DECIMAL(5,2), "
+            + " INTEGER PRIMARY KEY, " + KEY_GIORNO + " INTEGER, " + KEY_VOTO + " DECIMAL(5,2), "
             + KEY_DESCRIZIONE + " TEXT, " + KEY_ID_MATERIA + " INTEGER REFERENCE " + TABLE_MATERIA
             + "(" + KEY_ID + ") ON UPDATE CASCADE ON DELETE CASCADE, " + KEY_CREATED_AT
-            + " DATETIME);";
+            + " DATETIME DEFAULT CURRENT_TIMESTAMP);";
 
     private static final String CREATE_TABLE_REMINDER = "CREATE TABLE " + TABLE_REMINDER + "("
             + KEY_ID + " INTEGER PRIMARY KEY, " + KEY_ID_VERIFICA + " INTEGER REFERENCE "
             + TABLE_VERIFICA + "(" + KEY_ID + ") ON UPDATE CASCADE ON DELETE CASCADE, "
-            + KEY_CREATED_AT + " DATETIME);";
+            + KEY_CREATED_AT + " DATETIME DEFAULT CURRENT_TIMESTAMP);";
 
     private static final String CREATE_TABLE_VACANZA = "CREATE TABLE " + TABLE_VACANZA + "("
-            + KEY_ID + " INTEGER PRIMARY KEY, " + KEY_GIORNO_INIZIO + " DATETIME, "
-            + KEY_GIORNO_FINE + " DATETIME, " + KEY_CREATED_AT + " DATETIME);";
+            + KEY_ID + " INTEGER PRIMARY KEY, " + KEY_GIORNO_INIZIO + " INTEGER, "
+            + KEY_GIORNO_FINE + " INTEGER, " + KEY_CREATED_AT + " DATETIME DEFAULT"
+            + " CURRENT_TIMESTAMP);";
 
     public DatabaseOpenHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -139,13 +145,19 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
+    /*
     private String getDateTime() {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
         Date date = new Date();
         return dateFormat.format(date);
     }
+    */
 
-    public long create(Object model) {
+    private long getDateTime() {
+        return new Date().getTime();
+    }
+
+    public long create(DbModel model) {
         if(model instanceof Materia) {
             return createMateria((Materia) model);
         } else if(model instanceof Lezione) {
@@ -165,7 +177,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
         }
     }
 
-    public int update(Object model) {
+    public int update(DbModel model) {
         if(model instanceof Materia) {
             return updateMateria((Materia) model);
         } else if(model instanceof Lezione) {
@@ -182,6 +194,24 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
             return updateVacanza((Vacanza) model);
         } else {
             return 0;
+        }
+    }
+
+    public void delete(DbModel model) {
+        if(model instanceof Materia) {
+            deleteMateria(model.getId());
+        } else if(model instanceof Lezione) {
+            deleteLezione(model.getId());
+        } else if(model instanceof Compito) {
+            deleteCompito(model.getId());
+        } else if(model instanceof Verifica) {
+            deleteVerifica(model.getId());
+        } else if(model instanceof Voto) {
+            deleteVoto(model.getId());
+        } else if(model instanceof Reminder) {
+            deleteReminder(model.getId());
+        } else if(model instanceof Vacanza) {
+            deleteVacanza(model.getId());
         }
     }
 
@@ -216,7 +246,6 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
         materia.setNomeProfessore(c.getString(c.getColumnIndex(KEY_NOME_PROFESSORE)));
         materia.setDescrizione(c.getString(c.getColumnIndex(KEY_DESCRIZIONE)));
         materia.setColore(c.getInt(c.getColumnIndex(KEY_COLORE)));
-        materia.setSaved(true);
 
         return materia;
     }
@@ -239,7 +268,6 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
                 materia.setNomeProfessore(c.getString(c.getColumnIndex(KEY_NOME_PROFESSORE)));
                 materia.setDescrizione(c.getString(c.getColumnIndex(KEY_DESCRIZIONE)));
                 materia.setColore(c.getInt(c.getColumnIndex(KEY_COLORE)));
-                materia.setSaved(true);
 
                 materie.add(materia);
             } while(c.moveToNext());
@@ -274,9 +302,9 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
-        values.put(KEY_GIORNO, lezione.getGiorno());
-        values.put(KEY_ORA_INIZIO, lezione.getInizio());
-        values.put(KEY_ORA_FINE, lezione.getFine());
+        values.put(KEY_GIORNO, lezione.getGiorno().getTime());
+        values.put(KEY_ORA_INIZIO, lezione.getInizio().getTime());
+        values.put(KEY_ORA_FINE, lezione.getFine().getTime());
         values.put(KEY_CLASSE, lezione.getClasse());
         values.put(KEY_DESCRIZIONE, lezione.getDescrizione());
         values.put(KEY_ID_MATERIA, lezione.getIdMateria());
@@ -297,13 +325,12 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
 
         Lezione lezione = new Lezione();
         lezione.setId(c.getInt(c.getColumnIndex(KEY_ID)));
-        lezione.setGiorno(c.getInt(c.getColumnIndex(KEY_GIORNO)));
-        lezione.setInizio(c.getInt(c.getColumnIndex(KEY_ORA_INIZIO)));
-        lezione.setFine(c.getInt(c.getColumnIndex(KEY_ORA_FINE)));
+        lezione.setGiorno(new Date(c.getInt(c.getColumnIndex(KEY_GIORNO))));
+        lezione.setInizio(new Date(c.getInt(c.getColumnIndex(KEY_ORA_INIZIO))));
+        lezione.setFine(new Date(c.getInt(c.getColumnIndex(KEY_ORA_FINE))));
         lezione.setClasse(c.getString(c.getColumnIndex(KEY_CLASSE)));
         lezione.setDescrizione(c.getString(c.getColumnIndex(KEY_DESCRIZIONE)));
         lezione.setIdMateria(c.getInt(c.getColumnIndex(KEY_ID_MATERIA)));
-        lezione.setSaved(true);
 
         return lezione;
     }
@@ -322,13 +349,12 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
             do {
                 Lezione lezione = new Lezione();
                 lezione.setId(c.getInt(c.getColumnIndex(KEY_ID)));
-                lezione.setGiorno(c.getInt(c.getColumnIndex(KEY_GIORNO)));
-                lezione.setInizio(c.getInt(c.getColumnIndex(KEY_ORA_INIZIO)));
-                lezione.setFine(c.getInt(c.getColumnIndex(KEY_ORA_FINE)));
+                lezione.setGiorno(new Date(c.getInt(c.getColumnIndex(KEY_GIORNO))));
+                lezione.setInizio(new Date(c.getInt(c.getColumnIndex(KEY_ORA_INIZIO))));
+                lezione.setFine(new Date(c.getInt(c.getColumnIndex(KEY_ORA_FINE))));
                 lezione.setClasse(c.getString(c.getColumnIndex(KEY_CLASSE)));
                 lezione.setDescrizione(c.getString(c.getColumnIndex(KEY_DESCRIZIONE)));
                 lezione.setIdMateria(c.getInt(c.getColumnIndex(KEY_ID_MATERIA)));
-                lezione.setSaved(true);
 
                 lezioni.add(lezione);
             } while(c.moveToNext());
@@ -341,9 +367,9 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
-        values.put(KEY_GIORNO, lezione.getGiorno());
-        values.put(KEY_ORA_INIZIO, lezione.getInizio());
-        values.put(KEY_ORA_FINE, lezione.getFine());
+        values.put(KEY_GIORNO, lezione.getGiorno().getTime());
+        values.put(KEY_ORA_INIZIO, lezione.getInizio().getTime());
+        values.put(KEY_ORA_FINE, lezione.getFine().getTime());
         values.put(KEY_CLASSE, lezione.getClasse());
         values.put(KEY_DESCRIZIONE, lezione.getDescrizione());
         values.put(KEY_ID_MATERIA, lezione.getIdMateria());
@@ -365,7 +391,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
-        values.put(KEY_GIORNO, compito.getGiorno());
+        values.put(KEY_GIORNO, compito.getGiorno().getTime());
         values.put(KEY_DESCRIZIONE, compito.getDescrizione());
         values.put(KEY_ID_LEZIONE, compito.getIdLezione());
 
@@ -385,10 +411,9 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
 
         Compito compito = new Compito();
         compito.setId(c.getInt(c.getColumnIndex(KEY_ID)));
-        compito.setGiorno(c.getInt(c.getColumnIndex(KEY_GIORNO)));
+        compito.setGiorno(new Date(c.getInt(c.getColumnIndex(KEY_GIORNO))));
         compito.setDescrizione(c.getString(c.getColumnIndex(KEY_DESCRIZIONE)));
         compito.setIdLezione(c.getInt(c.getColumnIndex(KEY_ID_LEZIONE)));
-        compito.setSaved(true);
 
         return compito;
     }
@@ -407,10 +432,9 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
             do {
                 Compito compito = new Compito();
                 compito.setId(c.getInt(c.getColumnIndex(KEY_ID)));
-                compito.setGiorno(c.getInt(c.getColumnIndex(KEY_GIORNO)));
+                compito.setGiorno(new Date(c.getInt(c.getColumnIndex(KEY_GIORNO))));
                 compito.setDescrizione(c.getString(c.getColumnIndex(KEY_DESCRIZIONE)));
                 compito.setIdLezione(c.getInt(c.getColumnIndex(KEY_ID_LEZIONE)));
-                compito.setSaved(true);
 
                 compiti.add(compito);
             } while(c.moveToNext());
@@ -423,7 +447,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
-        values.put(KEY_GIORNO, compito.getGiorno());
+        values.put(KEY_GIORNO, compito.getGiorno().getTime());
         values.put(KEY_DESCRIZIONE, compito.getDescrizione());
         values.put(KEY_ID_LEZIONE, compito.getIdLezione());
 
@@ -444,7 +468,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
-        values.put(KEY_GIORNO, verifica.getGiorno());
+        values.put(KEY_GIORNO, verifica.getGiorno().getTime());
         values.put(KEY_TIPOLOGIA, verifica.getTipologia());
         values.put(KEY_ID_LEZIONE, verifica.getIdLezione());
 
@@ -464,10 +488,9 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
 
         Verifica verifica = new Verifica();
         verifica.setId(c.getInt(c.getColumnIndex(KEY_ID)));
-        verifica.setGiorno(c.getInt(c.getColumnIndex(KEY_GIORNO)));
+        verifica.setGiorno(new Date(c.getInt(c.getColumnIndex(KEY_GIORNO))));
         verifica.setTipologia(c.getString(c.getColumnIndex(KEY_TIPOLOGIA)));
         verifica.setIdLezione(c.getInt(c.getColumnIndex(KEY_ID_LEZIONE)));
-        verifica.setSaved(true);
 
         return verifica;
     }
@@ -486,10 +509,9 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
             do {
                 Verifica verifica = new Verifica();
                 verifica.setId(c.getInt(c.getColumnIndex(KEY_ID)));
-                verifica.setGiorno(c.getInt(c.getColumnIndex(KEY_GIORNO)));
+                verifica.setGiorno(new Date(c.getInt(c.getColumnIndex(KEY_GIORNO))));
                 verifica.setTipologia(c.getString(c.getColumnIndex(KEY_TIPOLOGIA)));
                 verifica.setIdLezione(c.getInt(c.getColumnIndex(KEY_ID_LEZIONE)));
-                verifica.setSaved(true);
 
                 verifiche.add(verifica);
             } while(c.moveToNext());
@@ -502,7 +524,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
-        values.put(KEY_GIORNO, verifica.getGiorno());
+        values.put(KEY_GIORNO, verifica.getGiorno().getTime());
         values.put(KEY_TIPOLOGIA, verifica.getTipologia());
         values.put(KEY_ID_LEZIONE, verifica.getIdLezione());
 
@@ -548,7 +570,6 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
         voto.setTipologia(c.getString(c.getColumnIndex(KEY_TIPOLOGIA)));
         voto.setDescrizione(c.getString(c.getColumnIndex(KEY_DESCRIZIONE)));
         voto.setIdMateria(c.getInt(c.getColumnIndex(KEY_ID_MATERIA)));
-        voto.setSaved(true);
 
         return voto;
     }
@@ -571,7 +592,6 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
                 voto.setTipologia(c.getString(c.getColumnIndex(KEY_TIPOLOGIA)));
                 voto.setDescrizione(c.getString(c.getColumnIndex(KEY_DESCRIZIONE)));
                 voto.setIdMateria(c.getInt(c.getColumnIndex(KEY_ID_MATERIA)));
-                voto.setSaved(true);
 
                 voti.add(voto);
             } while(c.moveToNext());
@@ -625,12 +645,11 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
         Reminder reminder = new Reminder();
         reminder.setId(c.getInt(c.getColumnIndex(KEY_ID)));
         reminder.setIdVerifica(c.getInt(c.getColumnIndex(KEY_ID_VERIFICA)));
-        reminder.setSaved(true);
 
         return reminder;
     }
 
-    public List<Reminder> getAllReminder() {
+    public List<Reminder> getAllReminders() {
         SQLiteDatabase db = this.getReadableDatabase();
         List<Reminder> reminders = new ArrayList<Reminder>();
 
@@ -645,7 +664,6 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
                 Reminder reminder = new Reminder();
                 reminder.setId(c.getInt(c.getColumnIndex(KEY_ID)));
                 reminder.setIdVerifica(c.getInt(c.getColumnIndex(KEY_ID_VERIFICA)));
-                reminder.setSaved(true);
 
                 reminders.add(reminder);
             } while(c.moveToNext());
@@ -677,8 +695,8 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
-        values.put(KEY_GIORNO_INIZIO, vacanza.getInizio());
-        values.put(KEY_GIORNO_FINE, vacanza.getFine());
+        values.put(KEY_GIORNO_INIZIO, vacanza.getInizio().getTime());
+        values.put(KEY_GIORNO_FINE, vacanza.getFine().getTime());
         values.put(KEY_DESCRIZIONE, vacanza.getDescrizione());
 
         return db.insert(TABLE_VACANZA, null, values);
@@ -697,10 +715,9 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
 
         Vacanza vacanza = new Vacanza();
         vacanza.setId(c.getInt(c.getColumnIndex(KEY_ID)));
-        vacanza.setInizio(c.getInt(c.getColumnIndex(KEY_GIORNO_INIZIO)));
-        vacanza.setFine(c.getInt(c.getColumnIndex(KEY_GIORNO_FINE)));
+        vacanza.setInizio(new Date(c.getInt(c.getColumnIndex(KEY_GIORNO_INIZIO))));
+        vacanza.setFine(new Date(c.getInt(c.getColumnIndex(KEY_GIORNO_FINE))));
         vacanza.setDescrizione(c.getString(c.getColumnIndex(KEY_DESCRIZIONE)));
-        vacanza.setSaved(true);
 
         return vacanza;
     }
@@ -719,10 +736,9 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
             do {
                 Vacanza vacanza = new Vacanza();
                 vacanza.setId(c.getInt(c.getColumnIndex(KEY_ID)));
-                vacanza.setInizio(c.getInt(c.getColumnIndex(KEY_GIORNO_INIZIO)));
-                vacanza.setFine(c.getInt(c.getColumnIndex(KEY_GIORNO_FINE)));
+                vacanza.setInizio(new Date(c.getInt(c.getColumnIndex(KEY_GIORNO_INIZIO))));
+                vacanza.setFine(new Date(c.getInt(c.getColumnIndex(KEY_GIORNO_FINE))));
                 vacanza.setDescrizione(c.getString(c.getColumnIndex(KEY_DESCRIZIONE)));
-                vacanza.setSaved(true);
 
                 vacanze.add(vacanza);
             } while(c.moveToNext());
@@ -735,8 +751,8 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
-        values.put(KEY_GIORNO_INIZIO, vacanza.getInizio());
-        values.put(KEY_GIORNO_FINE, vacanza.getFine());
+        values.put(KEY_GIORNO_INIZIO, vacanza.getInizio().getTime());
+        values.put(KEY_GIORNO_FINE, vacanza.getFine().getTime());
         values.put(KEY_DESCRIZIONE, vacanza.getDescrizione());
 
         return db.update(TABLE_VACANZA, values, KEY_ID + " = ?", new String[] {

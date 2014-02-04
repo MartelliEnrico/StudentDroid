@@ -1,5 +1,9 @@
 package me.martelli.enrico.studentdroid.sqlite.model;
 
+import java.util.List;
+
+import me.martelli.enrico.studentdroid.MyApplication;
+import me.martelli.enrico.studentdroid.sqlite.helper.DatabaseOpenHelper;
 import me.martelli.enrico.studentdroid.sqlite.helper.DbModel;
 
 /**
@@ -7,7 +11,6 @@ import me.martelli.enrico.studentdroid.sqlite.helper.DbModel;
  */
 public class Voto extends DbModel {
 
-    private int id;
     private float voto;
     private String tipologia;
     private String descrizione;
@@ -20,18 +23,6 @@ public class Voto extends DbModel {
         this.tipologia = tipologia;
         this.descrizione = descrizione;
         this.idMateria = idMateria;
-    }
-
-    public Voto(int id, float voto, String tipologia, String descrizione, int idMateria) {
-        this.id = id;
-        this.voto = voto;
-        this.tipologia = tipologia;
-        this.descrizione = descrizione;
-        this.idMateria = idMateria;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public void setVoto(float voto) {
@@ -50,10 +41,6 @@ public class Voto extends DbModel {
         this.idMateria = idMateria;
     }
 
-    public int getId() {
-        return id;
-    }
-
     public float getVoto() {
         return voto;
     }
@@ -68,5 +55,17 @@ public class Voto extends DbModel {
 
     public int getIdMateria() {
         return idMateria;
+    }
+
+    public static Voto find(long id) {
+        DatabaseOpenHelper db = new DatabaseOpenHelper(MyApplication.getAppContext());
+
+        return db.getVoto(id);
+    }
+
+    public static List<Voto> all() {
+        DatabaseOpenHelper db = new DatabaseOpenHelper(MyApplication.getAppContext());
+
+        return db.getAllVoti();
     }
 }
