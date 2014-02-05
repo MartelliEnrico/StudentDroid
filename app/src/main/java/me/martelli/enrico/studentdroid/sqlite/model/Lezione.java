@@ -12,7 +12,7 @@ import me.martelli.enrico.studentdroid.sqlite.helper.DbModel;
  */
 public class Lezione extends DbModel {
 
-    private Date giorno;
+    private int giorno;
     private Date inizio;
     private Date fine;
     private String classe;
@@ -21,7 +21,7 @@ public class Lezione extends DbModel {
 
     public Lezione() {}
 
-    public Lezione(Date giorno, Date inizio, Date fine, String classe, String descrizione, int idMateria) {
+    public Lezione(int giorno, Date inizio, Date fine, String classe, String descrizione, int idMateria) {
         this.giorno = giorno;
         this.inizio = inizio;
         this.fine = fine;
@@ -30,7 +30,7 @@ public class Lezione extends DbModel {
         this.idMateria = idMateria;
     }
 
-    public void setGiorno(Date giorno) {
+    public void setGiorno(int giorno) {
         this.giorno = giorno;
     }
 
@@ -54,7 +54,7 @@ public class Lezione extends DbModel {
         this.idMateria = idMateria;
     }
 
-    public Date getGiorno() {
+    public int getGiorno() {
         return giorno;
     }
 
@@ -79,14 +79,10 @@ public class Lezione extends DbModel {
     }
 
     public static Lezione find(long id) {
-        DatabaseOpenHelper db = new DatabaseOpenHelper(MyApplication.getAppContext());
-
-        return db.getLezione(id);
+        return new DatabaseOpenHelper(MyApplication.getAppContext()).getLezione(id);
     }
 
     public static List<Lezione> all() {
-        DatabaseOpenHelper db = new DatabaseOpenHelper(MyApplication.getAppContext());
-
-        return db.getAllLezioni();
+        return new DatabaseOpenHelper(MyApplication.getAppContext()).getAllLezioni();
     }
 }

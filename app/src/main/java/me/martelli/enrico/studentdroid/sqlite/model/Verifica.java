@@ -49,14 +49,10 @@ public class Verifica extends DbModel {
     }
 
     public static Verifica find(long id) {
-        DatabaseOpenHelper db = new DatabaseOpenHelper(MyApplication.getAppContext());
-
-        return db.getVerifica(id);
+        return new DatabaseOpenHelper(MyApplication.getAppContext()).getVerifica(id);
     }
 
     public static List<Verifica> all() {
-        DatabaseOpenHelper db = new DatabaseOpenHelper(MyApplication.getAppContext());
-
-        return db.getAllVerifiche();
+        return new DatabaseOpenHelper(MyApplication.getAppContext()).getAllVerifiche();
     }
 }

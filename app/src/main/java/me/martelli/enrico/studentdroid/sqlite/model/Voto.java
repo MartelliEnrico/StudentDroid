@@ -58,14 +58,10 @@ public class Voto extends DbModel {
     }
 
     public static Voto find(long id) {
-        DatabaseOpenHelper db = new DatabaseOpenHelper(MyApplication.getAppContext());
-
-        return db.getVoto(id);
+        return new DatabaseOpenHelper(MyApplication.getAppContext()).getVoto(id);
     }
 
     public static List<Voto> all() {
-        DatabaseOpenHelper db = new DatabaseOpenHelper(MyApplication.getAppContext());
-
-        return db.getAllVoti();
+        return new DatabaseOpenHelper(MyApplication.getAppContext()).getAllVoti();
     }
 }

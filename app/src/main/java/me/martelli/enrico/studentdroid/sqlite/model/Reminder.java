@@ -28,14 +28,10 @@ public class Reminder extends DbModel {
     }
 
     public static Reminder find(long id) {
-        DatabaseOpenHelper db = new DatabaseOpenHelper(MyApplication.getAppContext());
-
-        return db.getReminder(id);
+        return new DatabaseOpenHelper(MyApplication.getAppContext()).getReminder(id);
     }
 
     public static List<Reminder> all() {
-        DatabaseOpenHelper db = new DatabaseOpenHelper(MyApplication.getAppContext());
-
-        return db.getAllReminders();
+        return new DatabaseOpenHelper(MyApplication.getAppContext()).getAllReminders();
     }
 }

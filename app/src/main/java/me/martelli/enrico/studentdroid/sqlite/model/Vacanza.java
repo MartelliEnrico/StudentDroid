@@ -49,14 +49,10 @@ public class Vacanza extends DbModel {
     }
 
     public static Vacanza find(long id) {
-        DatabaseOpenHelper db = new DatabaseOpenHelper(MyApplication.getAppContext());
-
-        return db.getVacanza(id);
+        return new DatabaseOpenHelper(MyApplication.getAppContext()).getVacanza(id);
     }
 
     public static List<Vacanza> all() {
-        DatabaseOpenHelper db = new DatabaseOpenHelper(MyApplication.getAppContext());
-
-        return db.getAllVacanze();
+        return new DatabaseOpenHelper(MyApplication.getAppContext()).getAllVacanze();
     }
 }

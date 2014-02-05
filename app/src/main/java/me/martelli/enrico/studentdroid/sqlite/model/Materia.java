@@ -60,14 +60,10 @@ public class Materia extends DbModel {
     }
 
     public static Materia find(long id) {
-        DatabaseOpenHelper db = new DatabaseOpenHelper(MyApplication.getAppContext());
-
-        return db.getMateria(id);
+        return new DatabaseOpenHelper(MyApplication.getAppContext()).getMateria(id);
     }
 
     public static List<Materia> all() {
-        DatabaseOpenHelper db = new DatabaseOpenHelper(MyApplication.getAppContext());
-
-        return db.getAllMaterie();
+        return new DatabaseOpenHelper(MyApplication.getAppContext()).getAllMaterie();
     }
 }

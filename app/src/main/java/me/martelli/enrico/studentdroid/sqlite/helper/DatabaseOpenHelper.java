@@ -302,7 +302,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
-        values.put(KEY_GIORNO, lezione.getGiorno().getTime());
+        values.put(KEY_GIORNO, lezione.getGiorno());
         values.put(KEY_ORA_INIZIO, lezione.getInizio().getTime());
         values.put(KEY_ORA_FINE, lezione.getFine().getTime());
         values.put(KEY_CLASSE, lezione.getClasse());
@@ -325,7 +325,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
 
         Lezione lezione = new Lezione();
         lezione.setId(c.getInt(c.getColumnIndex(KEY_ID)));
-        lezione.setGiorno(new Date(c.getInt(c.getColumnIndex(KEY_GIORNO))));
+        lezione.setGiorno(c.getInt(c.getColumnIndex(KEY_GIORNO)));
         lezione.setInizio(new Date(c.getInt(c.getColumnIndex(KEY_ORA_INIZIO))));
         lezione.setFine(new Date(c.getInt(c.getColumnIndex(KEY_ORA_FINE))));
         lezione.setClasse(c.getString(c.getColumnIndex(KEY_CLASSE)));
@@ -349,7 +349,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
             do {
                 Lezione lezione = new Lezione();
                 lezione.setId(c.getInt(c.getColumnIndex(KEY_ID)));
-                lezione.setGiorno(new Date(c.getInt(c.getColumnIndex(KEY_GIORNO))));
+                lezione.setGiorno(c.getInt(c.getColumnIndex(KEY_GIORNO)));
                 lezione.setInizio(new Date(c.getInt(c.getColumnIndex(KEY_ORA_INIZIO))));
                 lezione.setFine(new Date(c.getInt(c.getColumnIndex(KEY_ORA_FINE))));
                 lezione.setClasse(c.getString(c.getColumnIndex(KEY_CLASSE)));
@@ -367,7 +367,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
-        values.put(KEY_GIORNO, lezione.getGiorno().getTime());
+        values.put(KEY_GIORNO, lezione.getGiorno());
         values.put(KEY_ORA_INIZIO, lezione.getInizio().getTime());
         values.put(KEY_ORA_FINE, lezione.getFine().getTime());
         values.put(KEY_CLASSE, lezione.getClasse());

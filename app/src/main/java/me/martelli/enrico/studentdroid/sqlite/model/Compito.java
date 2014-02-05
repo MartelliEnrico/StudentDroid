@@ -49,14 +49,10 @@ public class Compito extends DbModel {
     }
 
     public static Compito find(long id) {
-        DatabaseOpenHelper db = new DatabaseOpenHelper(MyApplication.getAppContext());
-
-        return db.getCompito(id);
+        return new DatabaseOpenHelper(MyApplication.getAppContext()).getCompito(id);
     }
 
     public static List<Compito> all() {
-        DatabaseOpenHelper db = new DatabaseOpenHelper(MyApplication.getAppContext());
-
-        return db.getAllCompiti();
+        return new DatabaseOpenHelper(MyApplication.getAppContext()).getAllCompiti();
     }
 }
