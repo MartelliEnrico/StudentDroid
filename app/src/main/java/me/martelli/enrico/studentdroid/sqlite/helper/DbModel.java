@@ -7,7 +7,7 @@ import me.martelli.enrico.studentdroid.MyApplication;
  */
 public abstract class DbModel {
 
-    private long id;
+    private long id = 0L;
 
     public void setId(long id) {
         this.id = id;

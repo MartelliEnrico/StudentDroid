@@ -14,6 +14,7 @@ import java.text.ParseException;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -74,42 +75,42 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
     private static final String KEY_GIORNO_FINE = "giorno_fine";
 
     // table create statement
-    private static final String CREATE_TABLE_MATERIA = "CREATE TABLE " + TABLE_MATERIA + "("
+    private static final String CREATE_TABLE_MATERIA = "CREATE TABLE " + TABLE_MATERIA + " ("
             + KEY_ID + " INTEGER PRIMARY KEY, " + KEY_NOME + " TEXT, " + KEY_NOME_PROFESSORE
             + " TEXT, " + KEY_DESCRIZIONE + " TEXT, " + KEY_COLORE + " INTEGER, " + KEY_CREATED_AT
             + " DATETIME DEFAULT CURRENT_TIMESTAMP);";
 
-    private static final String CREATE_TABLE_LEZIONE = "CREATE TABLE " + TABLE_LEZIONE + "("
+    private static final String CREATE_TABLE_LEZIONE = "CREATE TABLE " + TABLE_LEZIONE + " ("
             + KEY_ID + " INTEGER PRIMARY KEY, " + KEY_GIORNO + " INTEGER, " + KEY_ORA_FINE
             + " INTEGER, " + KEY_ORA_INIZIO + " INTEGER, " + KEY_CLASSE + " TEXT, "
-            + KEY_DESCRIZIONE + " TEXT, " + KEY_ID_MATERIA + " INTEGER REFERENCE " + TABLE_MATERIA
-            + "(" + KEY_ID + ") ON UPDATE CASCADE ON DELETE CASCADE, " + KEY_CREATED_AT
+            + KEY_DESCRIZIONE + " TEXT, " + KEY_ID_MATERIA + " INTEGER REFERENCES " + TABLE_MATERIA
+            + " (" + KEY_ID + ") ON UPDATE CASCADE ON DELETE CASCADE, " + KEY_CREATED_AT
             + " DATETIME DEFAULT CURRENT_TIMESTAMP);";
 
-    private static final String CREATE_TABLE_COMPITO = "CREATE TABLE " + TABLE_COMPITO + "("
+    private static final String CREATE_TABLE_COMPITO = "CREATE TABLE " + TABLE_COMPITO + " ("
             + KEY_ID + " INTEGER PRIMARY KEY, " + KEY_GIORNO + " INTEGER, " + KEY_DESCRIZIONE
-            + " TEXT, " + KEY_ID_LEZIONE + " INTEGER REFERENCE " + TABLE_LEZIONE + "(" + KEY_ID
+            + " TEXT, " + KEY_ID_LEZIONE + " INTEGER REFERENCES " + TABLE_LEZIONE + " (" + KEY_ID
             + ") ON UPDATE CASCADE ON DELETE CASCADE, " + KEY_CREATED_AT + " DATETIME DEFAULT"
             + " CURRENT_TIMESTAMP);";
 
-    private static final String CREATE_TABLE_VERIFICA = "CREATE TABLE " + TABLE_VERIFICA + "("
+    private static final String CREATE_TABLE_VERIFICA = "CREATE TABLE " + TABLE_VERIFICA + " ("
             + KEY_ID + " INTEGER PRIMARY KEY, " + KEY_GIORNO + " INTEGER, " + KEY_TIPOLOGIA
-            + " TEXT, " + KEY_DESCRIZIONE + " TEXT, " + KEY_ID_LEZIONE + " INTEGER REFERENCE "
-            + TABLE_LEZIONE + "(" + KEY_ID + ") ON UPDATE CASCADE ON DELETE CASCADE, "
+            + " TEXT, " + KEY_DESCRIZIONE + " TEXT, " + KEY_ID_LEZIONE + " INTEGER REFERENCES "
+            + TABLE_LEZIONE + " (" + KEY_ID + ") ON UPDATE CASCADE ON DELETE CASCADE, "
             + KEY_CREATED_AT + " DATETIME DEFAULT CURRENT_TIMESTAMP);";
 
-    private static final String CREATE_TABLE_VOTO = "CREATE TABLE " + TABLE_VOTO + "(" + KEY_ID
+    private static final String CREATE_TABLE_VOTO = "CREATE TABLE " + TABLE_VOTO + " (" + KEY_ID
             + " INTEGER PRIMARY KEY, " + KEY_GIORNO + " INTEGER, " + KEY_VOTO + " DECIMAL(5,2), "
-            + KEY_DESCRIZIONE + " TEXT, " + KEY_ID_MATERIA + " INTEGER REFERENCE " + TABLE_MATERIA
-            + "(" + KEY_ID + ") ON UPDATE CASCADE ON DELETE CASCADE, " + KEY_CREATED_AT
+            + KEY_DESCRIZIONE + " TEXT, " + KEY_ID_MATERIA + " INTEGER REFERENCES " + TABLE_MATERIA
+            + " (" + KEY_ID + ") ON UPDATE CASCADE ON DELETE CASCADE, " + KEY_CREATED_AT
             + " DATETIME DEFAULT CURRENT_TIMESTAMP);";
 
-    private static final String CREATE_TABLE_REMINDER = "CREATE TABLE " + TABLE_REMINDER + "("
-            + KEY_ID + " INTEGER PRIMARY KEY, " + KEY_ID_VERIFICA + " INTEGER REFERENCE "
-            + TABLE_VERIFICA + "(" + KEY_ID + ") ON UPDATE CASCADE ON DELETE CASCADE, "
+    private static final String CREATE_TABLE_REMINDER = "CREATE TABLE " + TABLE_REMINDER + " ("
+            + KEY_ID + " INTEGER PRIMARY KEY, " + KEY_ID_VERIFICA + " INTEGER REFERENCES "
+            + TABLE_VERIFICA + " (" + KEY_ID + ") ON UPDATE CASCADE ON DELETE CASCADE, "
             + KEY_CREATED_AT + " DATETIME DEFAULT CURRENT_TIMESTAMP);";
 
-    private static final String CREATE_TABLE_VACANZA = "CREATE TABLE " + TABLE_VACANZA + "("
+    private static final String CREATE_TABLE_VACANZA = "CREATE TABLE " + TABLE_VACANZA + " ("
             + KEY_ID + " INTEGER PRIMARY KEY, " + KEY_GIORNO_INIZIO + " INTEGER, "
             + KEY_GIORNO_FINE + " INTEGER, " + KEY_CREATED_AT + " DATETIME DEFAULT"
             + " CURRENT_TIMESTAMP);";
@@ -144,14 +145,6 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
         // create new tables
         onCreate(db);
     }
-
-    /*
-    private String getDateTime() {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
-        Date date = new Date();
-        return dateFormat.format(date);
-    }
-    */
 
     private long getDateTime() {
         return new Date().getTime();
@@ -238,7 +231,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
 
         Cursor c = db.rawQuery(selectQuery, null);
 
-        if (c != null) c.moveToFirst();
+        if (c == null || ! c.moveToFirst()) return null;
 
         Materia materia = new Materia();
         materia.setId(c.getInt(c.getColumnIndex(KEY_ID)));
@@ -260,7 +253,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
 
         Cursor c = db.rawQuery(selectQuery, null);
 
-        if(c.moveToFirst()) {
+        if(c != null && c.moveToFirst()) {
             do {
                 Materia materia = new Materia();
                 materia.setId(c.getInt(c.getColumnIndex(KEY_ID)));
@@ -321,7 +314,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
 
         Cursor c = db.rawQuery(selectQuery, null);
 
-        if (c != null) c.moveToFirst();
+        if (! (c != null && c.moveToFirst())) return null;
 
         Lezione lezione = new Lezione();
         lezione.setId(c.getInt(c.getColumnIndex(KEY_ID)));
@@ -345,7 +338,40 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
 
         Cursor c = db.rawQuery(selectQuery, null);
 
-        if(c.moveToFirst()) {
+        if(c != null && c.moveToFirst()) {
+            do {
+                Lezione lezione = new Lezione();
+                lezione.setId(c.getInt(c.getColumnIndex(KEY_ID)));
+                lezione.setGiorno(c.getInt(c.getColumnIndex(KEY_GIORNO)));
+                lezione.setInizio(new Date(c.getInt(c.getColumnIndex(KEY_ORA_INIZIO))));
+                lezione.setFine(new Date(c.getInt(c.getColumnIndex(KEY_ORA_FINE))));
+                lezione.setClasse(c.getString(c.getColumnIndex(KEY_CLASSE)));
+                lezione.setDescrizione(c.getString(c.getColumnIndex(KEY_DESCRIZIONE)));
+                lezione.setIdMateria(c.getInt(c.getColumnIndex(KEY_ID_MATERIA)));
+
+                lezioni.add(lezione);
+            } while(c.moveToNext());
+        }
+
+        return lezioni;
+    }
+
+    public List<Lezione> getTodayLezioni() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        List<Lezione> lezioni = new ArrayList<Lezione>();
+
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(new Date());
+        int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
+
+        String selectQuery = "SELECT * FROM " + TABLE_LEZIONE + " WHERE " + KEY_GIORNO + " = "
+                + dayOfWeek + " ORDER BY " + KEY_ORA_INIZIO + " ASC";
+
+        Log.e(LOG, selectQuery);
+
+        Cursor c = db.rawQuery(selectQuery, null);
+
+        if(c != null && c.moveToFirst()) {
             do {
                 Lezione lezione = new Lezione();
                 lezione.setId(c.getInt(c.getColumnIndex(KEY_ID)));
@@ -407,7 +433,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
 
         Cursor c = db.rawQuery(selectQuery, null);
 
-        if (c != null) c.moveToFirst();
+        if (! (c != null && c.moveToFirst())) return null;
 
         Compito compito = new Compito();
         compito.setId(c.getInt(c.getColumnIndex(KEY_ID)));
@@ -428,7 +454,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
 
         Cursor c = db.rawQuery(selectQuery, null);
 
-        if(c.moveToFirst()) {
+        if(c != null && c.moveToFirst()) {
             do {
                 Compito compito = new Compito();
                 compito.setId(c.getInt(c.getColumnIndex(KEY_ID)));
@@ -484,7 +510,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
 
         Cursor c = db.rawQuery(selectQuery, null);
 
-        if (c != null) c.moveToFirst();
+        if (! (c != null && c.moveToFirst())) return null;
 
         Verifica verifica = new Verifica();
         verifica.setId(c.getInt(c.getColumnIndex(KEY_ID)));
@@ -505,7 +531,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
 
         Cursor c = db.rawQuery(selectQuery, null);
 
-        if(c.moveToFirst()) {
+        if(c != null && c.moveToFirst()) {
             do {
                 Verifica verifica = new Verifica();
                 verifica.setId(c.getInt(c.getColumnIndex(KEY_ID)));
@@ -562,7 +588,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
 
         Cursor c = db.rawQuery(selectQuery, null);
 
-        if (c != null) c.moveToFirst();
+        if (! (c != null && c.moveToFirst())) return null;
 
         Voto voto = new Voto();
         voto.setId(c.getInt(c.getColumnIndex(KEY_ID)));
@@ -584,7 +610,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
 
         Cursor c = db.rawQuery(selectQuery, null);
 
-        if(c.moveToFirst()) {
+        if(c != null && c.moveToFirst()) {
             do {
                 Voto voto = new Voto();
                 voto.setId(c.getInt(c.getColumnIndex(KEY_ID)));
@@ -640,7 +666,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
 
         Cursor c = db.rawQuery(selectQuery, null);
 
-        if (c != null) c.moveToFirst();
+        if (! (c != null && c.moveToFirst())) return null;
 
         Reminder reminder = new Reminder();
         reminder.setId(c.getInt(c.getColumnIndex(KEY_ID)));
@@ -659,7 +685,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
 
         Cursor c = db.rawQuery(selectQuery, null);
 
-        if(c.moveToFirst()) {
+        if(c != null && c.moveToFirst()) {
             do {
                 Reminder reminder = new Reminder();
                 reminder.setId(c.getInt(c.getColumnIndex(KEY_ID)));
@@ -711,7 +737,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
 
         Cursor c = db.rawQuery(selectQuery, null);
 
-        if (c != null) c.moveToFirst();
+        if (! (c != null && c.moveToFirst())) return null;
 
         Vacanza vacanza = new Vacanza();
         vacanza.setId(c.getInt(c.getColumnIndex(KEY_ID)));
@@ -732,7 +758,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
 
         Cursor c = db.rawQuery(selectQuery, null);
 
-        if(c.moveToFirst()) {
+        if(c != null && c.moveToFirst()) {
             do {
                 Vacanza vacanza = new Vacanza();
                 vacanza.setId(c.getInt(c.getColumnIndex(KEY_ID)));

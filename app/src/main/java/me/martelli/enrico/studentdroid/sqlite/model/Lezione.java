@@ -85,4 +85,8 @@ public class Lezione extends DbModel {
     public static List<Lezione> all() {
         return new DatabaseOpenHelper(MyApplication.getAppContext()).getAllLezioni();
     }
+
+    public static List<Lezione> oggi() {
+        return new DatabaseOpenHelper(MyApplication.getAppContext()).getTodayLezioni();
+    }
 }

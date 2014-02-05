@@ -38,6 +38,9 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        MyApplication.context = getApplicationContext();
+
         setContentView(R.layout.activity_main);
 
         mPages = new String[] {
