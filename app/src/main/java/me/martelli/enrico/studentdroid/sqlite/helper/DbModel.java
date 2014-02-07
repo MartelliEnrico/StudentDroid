@@ -1,5 +1,8 @@
 package me.martelli.enrico.studentdroid.sqlite.helper;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import me.martelli.enrico.studentdroid.MyApplication;
 
 /**
@@ -7,7 +10,7 @@ import me.martelli.enrico.studentdroid.MyApplication;
  */
 public abstract class DbModel {
 
-    private long id = 0L;
+    protected long id = 0L;
 
     public void setId(long id) {
         this.id = id;
@@ -32,8 +35,4 @@ public abstract class DbModel {
 
         db.delete(this);
     }
-
-    // public static DbModel find(long id);
-
-    // public static List<DbModel> all();
 }

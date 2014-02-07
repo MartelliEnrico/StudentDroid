@@ -43,9 +43,12 @@ public class LezioneArrayAdapter extends ArrayAdapter<Lezione> {
         rowView.setBackgroundColor(materia.getColore());
 
         TextView mInizioLezione = (TextView) rowView.findViewById(R.id.lesson_start);
-        SimpleDateFormat formatOrarioInizio = new SimpleDateFormat("hh:mm");
+        SimpleDateFormat formatOrarioInizio = new SimpleDateFormat("HH:mm");
         formatOrarioInizio.setTimeZone(TimeZone.getTimeZone("GMT"));
         mInizioLezione.setText(formatOrarioInizio.format(lezioni.get(position).getInizio()));
+
+        TextView mClasse = (TextView) rowView.findViewById(R.id.lesson_classroom);
+        mClasse.setText(lezioni.get(position).getClasse());
 
         TextView mNomeMateria = (TextView) rowView.findViewById(R.id.lesson_name);
         mNomeMateria.setText(materia.getNome().toUpperCase());

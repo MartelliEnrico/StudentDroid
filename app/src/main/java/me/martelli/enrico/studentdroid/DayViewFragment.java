@@ -1,6 +1,7 @@
 package me.martelli.enrico.studentdroid;
 
 import android.app.Fragment;
+import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -8,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -23,13 +25,13 @@ import java.util.TimeZone;
 
 import me.martelli.enrico.studentdroid.listener.OnClickListenerCounter;
 import me.martelli.enrico.studentdroid.sqlite.helper.DatabaseOpenHelper;
+import me.martelli.enrico.studentdroid.sqlite.helper.DebugDbSeeder;
 import me.martelli.enrico.studentdroid.sqlite.model.Lezione;
 import me.martelli.enrico.studentdroid.sqlite.model.Materia;
 import me.martelli.enrico.studentdroid.sqlite.model.adapter.LezioneArrayAdapter;
 
 public class DayViewFragment extends Fragment {
 
-//    ListView mLessonsListView;
     LinearLayout mLessonsLinearLayout;
     Button mAddSampleLessons;
     Button mClearSampleLessons;
@@ -50,14 +52,6 @@ public class DayViewFragment extends Fragment {
 
         View rootView = inflater.inflate(R.layout.fragment_day_view, container, false);
 
-//        mLessonsListView = (ListView) rootView.findViewById(R.id.lessons_list);
-//        mLessonsListView.setScrollContainer(false);
-
-//        mLessonsListView.setAdapter(new LezioneArrayAdapter(
-//                getActivity().getBaseContext(),
-//                Lezione.oggi()
-//        ));
-
         mLessonsLinearLayout = (LinearLayout) rootView.findViewById(R.id.lessons_list);
 
         LezioneArrayAdapter lezioneArrayAdapter = new LezioneArrayAdapter(
@@ -67,6 +61,20 @@ public class DayViewFragment extends Fragment {
         for(int i = 0; i < lezioneArrayAdapter.getCount(); i++) {
             View view = lezioneArrayAdapter.getView(i, null, null);
             view.setOnClickListener(new OnClickListenerCounter(i));
+            view.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View view, MotionEvent motionEvent) {
+                    switch(motionEvent.getAction()) {
+                        case MotionEvent.ACTION_DOWN:
+                            view.setAlpha(0.9f);
+                            break;
+                        case MotionEvent.ACTION_UP:
+                            view.setAlpha(1);
+                            break;
+                    }
+                    return false;
+                }
+            });
             mLessonsLinearLayout.addView(view);
         }
 
@@ -75,63 +83,7 @@ public class DayViewFragment extends Fragment {
         mAddSampleLessons.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Materia matematica = new Materia(
-                        "Matematica",
-                        "Ferretti",
-                        null,
-                        Color.rgb(255, 68, 68)
-                );
-                matematica.save();
-
-                Materia inglese = new Materia(
-                        "Inglese",
-                        "Starace",
-                        null,
-                        Color.rgb(170, 102, 204)
-                );
-                inglese.save();
-
-                Materia storia = new Materia(
-                        "Storia",
-                        "D'Alanno",
-                        null,
-                        Color.rgb(255, 187, 51)
-                );
-                storia.save();
-
-                Lezione math = new Lezione(
-                        4,
-                        new Date(1000 * 60 * 60 * 8),
-                        new Date(1000 * 60 * 60 * 9),
-                        "208",
-                        null,
-                        (int) matematica.getId()
-                );
-                math.save();
-
-                Lezione english = new Lezione(
-                        4,
-                        new Date(1000 * 60 * 60 * 9),
-                        new Date(1000 * 60 * 60 * 10),
-                        "15B",
-                        null,
-                        (int) inglese.getId()
-                );
-                english.save();
-
-                Lezione history = new Lezione(
-                        4,
-                        new Date(1000 * 60 * 60 * 10),
-                        new Date(1000 * 60 * 60 * 11),
-                        "115",
-                        null,
-                        (int) storia.getId()
-                );
-                history.save();
-
-//                ((LezioneArrayAdapter) mLessonsListView.getAdapter()).clear();
-
-//                ((LezioneArrayAdapter) mLessonsListView.getAdapter()).addAll(Lezione.oggi());
+                DebugDbSeeder.seed();
 
                 mLessonsLinearLayout.removeAllViews();
 
@@ -141,6 +93,21 @@ public class DayViewFragment extends Fragment {
 
                 for(int i = 0; i < lezioneArrayAdapter.getCount(); i++) {
                     View v = lezioneArrayAdapter.getView(i, null, null);
+                    v.setOnClickListener(new OnClickListenerCounter(i));
+                    v.setOnTouchListener(new View.OnTouchListener() {
+                        @Override
+                        public boolean onTouch(View view, MotionEvent motionEvent) {
+                            switch(motionEvent.getAction()) {
+                                case MotionEvent.ACTION_DOWN:
+                                    view.setAlpha(0.9f);
+                                    break;
+                                case MotionEvent.ACTION_UP:
+                                    view.setAlpha(1);
+                                    break;
+                            }
+                            return false;
+                        }
+                    });
                     mLessonsLinearLayout.addView(v);
                 }
             }
@@ -155,8 +122,6 @@ public class DayViewFragment extends Fragment {
 
                 db.execSQL("DELETE FROM lezioni");
                 db.execSQL("DELETE FROM materie");
-
-//                ((LezioneArrayAdapter) mLessonsListView.getAdapter()).clear();
 
                 mLessonsLinearLayout.removeAllViews();
             }

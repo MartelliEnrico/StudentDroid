@@ -23,14 +23,6 @@
         android:layout_weight="1"
         android:layout_alignParentRight="true" />
 
-    <!-- ListView
-        android:id="@+id/lessons_list"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:divider="@null"
-        android:dividerHeight="0dp"
-        android:layout_below="@id/add_sample_lessons" /-->
-
     <LinearLayout
         android:id="@+id/lessons_list"
         android:layout_width="match_parent"

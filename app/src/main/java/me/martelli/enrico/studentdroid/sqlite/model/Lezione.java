@@ -1,5 +1,8 @@
 package me.martelli.enrico.studentdroid.sqlite.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.Date;
 import java.util.List;
 
@@ -9,8 +12,9 @@ import me.martelli.enrico.studentdroid.sqlite.helper.DbModel;
 
 /**
  * Created by Enrico on 31/01/14.
+ * http://parcelabler.com/
  */
-public class Lezione extends DbModel {
+public class Lezione extends DbModel implements Parcelable {
 
     private int giorno;
     private Date inizio;
@@ -89,4 +93,45 @@ public class Lezione extends DbModel {
     public static List<Lezione> oggi() {
         return new DatabaseOpenHelper(MyApplication.getAppContext()).getTodayLezioni();
     }
+
+    protected Lezione(Parcel in) {
+        id = in.readLong();
+        giorno = in.readInt();
+        long tmpInizio = in.readLong();
+        inizio = tmpInizio != -1 ? new Date(tmpInizio) : null;
+        long tmpFine = in.readLong();
+        fine = tmpFine != -1 ? new Date(tmpFine) : null;
+        classe = in.readString();
+        descrizione = in.readString();
+        idMateria = in.readInt();
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeLong(id);
+        dest.writeInt(giorno);
+        dest.writeLong(inizio != null ? inizio.getTime() : -1L);
+        dest.writeLong(fine != null ? fine.getTime() : -1L);
+        dest.writeString(classe);
+        dest.writeString(descrizione);
+        dest.writeInt(idMateria);
+    }
+
+    @SuppressWarnings("unused")
+    public static final Parcelable.Creator<Lezione> CREATOR = new Parcelable.Creator<Lezione>() {
+        @Override
+        public Lezione createFromParcel(Parcel in) {
+            return new Lezione(in);
+        }
+
+        @Override
+        public Lezione[] newArray(int size) {
+            return new Lezione[size];
+        }
+    };
 }

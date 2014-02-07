@@ -33,7 +33,7 @@ public class MainActivity extends Activity {
 
     String[] mPages;
 
-    DatabaseOpenHelper db;
+    private int currentFragment = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,10 +51,7 @@ public class MainActivity extends Activity {
         };
 
         // title
-        mTitle = mPages[0];
-
-        // database!!!
-        db = new DatabaseOpenHelper(getApplicationContext());
+        //mTitle = mPages[currentFragment];
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerList = (ListView) findViewById(R.id.drawer_list);
@@ -184,13 +181,13 @@ public class MainActivity extends Activity {
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
 
-        int position = savedInstanceState.getInt(CURRENT_FRAGMENT);
+        this.currentFragment = savedInstanceState.getInt(CURRENT_FRAGMENT);
 
-        mTitle = mPages[position];
+        mTitle = mPages[currentFragment];
 
         Fragment fragment = null;
 
-        switch(position) {
+        switch(currentFragment) {
             case 0:
                 fragment = new DayViewFragment();
                 break;
@@ -209,13 +206,44 @@ public class MainActivity extends Activity {
                 .replace(R.id.container, fragment)
                 .commit();
 
-        ((NavigationDrawerArrayAdapter)mDrawerList.getAdapter()).selectItem(position);
+        ((NavigationDrawerArrayAdapter)mDrawerList.getAdapter()).selectItem(currentFragment);
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        outState.putInt(CURRENT_FRAGMENT, ((NavigationDrawerArrayAdapter)mDrawerList.getAdapter()).selectedItem);
+        this.currentFragment = ((NavigationDrawerArrayAdapter)mDrawerList.getAdapter()).selectedItem;
+        outState.putInt(CURRENT_FRAGMENT, currentFragment);
 
         super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        mTitle = mPages[currentFragment];
+
+        Fragment fragment = null;
+
+        switch(currentFragment) {
+            case 0:
+                fragment = new DayViewFragment();
+                break;
+            case 1:
+                fragment = new WeekViewFragment();
+                break;
+            case 2:
+                fragment = new HomeworkExamsFragment();
+                break;
+            case 3:
+                fragment = new VotesFragment();
+                break;
+        }
+
+        getFragmentManager().beginTransaction()
+                .replace(R.id.container, fragment)
+                .commit();
+
+        ((NavigationDrawerArrayAdapter)mDrawerList.getAdapter()).selectItem(currentFragment);
     }
 }

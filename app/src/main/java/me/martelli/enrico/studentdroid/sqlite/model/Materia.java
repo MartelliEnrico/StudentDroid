@@ -1,5 +1,8 @@
 package me.martelli.enrico.studentdroid.sqlite.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.List;
 
 import me.martelli.enrico.studentdroid.MyApplication;
@@ -8,15 +11,14 @@ import me.martelli.enrico.studentdroid.sqlite.helper.DbModel;
 
 /**
  * Created by Enrico on 31/01/14.
+ * http://parcelabler.com/
  */
-public class Materia extends DbModel {
+public class Materia extends DbModel implements Parcelable {
 
     private String nome;
     private String nome_professore;
     private String descrizione;
     private int colore;
-
-    private boolean saved = false;
 
     public Materia() {}
 
@@ -66,4 +68,39 @@ public class Materia extends DbModel {
     public static List<Materia> all() {
         return new DatabaseOpenHelper(MyApplication.getAppContext()).getAllMaterie();
     }
+
+    protected Materia(Parcel in) {
+        id = in.readLong();
+        nome = in.readString();
+        nome_professore = in.readString();
+        descrizione = in.readString();
+        colore = in.readInt();
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeLong(id);
+        dest.writeString(nome);
+        dest.writeString(nome_professore);
+        dest.writeString(descrizione);
+        dest.writeInt(colore);
+    }
+
+    @SuppressWarnings("unused")
+    public static final Parcelable.Creator<Materia> CREATOR = new Parcelable.Creator<Materia>() {
+        @Override
+        public Materia createFromParcel(Parcel in) {
+            return new Materia(in);
+        }
+
+        @Override
+        public Materia[] newArray(int size) {
+            return new Materia[size];
+        }
+    };
 }

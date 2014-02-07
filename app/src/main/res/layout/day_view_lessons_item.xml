@@ -1,21 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_height="fill_parent"
     android:layout_width="fill_parent"
-    android:orientation="horizontal" >
+    android:orientation="horizontal"
+    android:clickable="true" >
 
     <TextView
         android:id="@+id/lesson_start"
-        android:layout_height="fill_parent"
+        android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         android:textSize="16sp"
         android:paddingTop="16dp"
+        android:paddingBottom="2dp"
         android:paddingLeft="16dp"
-        android:textColor="#99ffffff"
-        android:gravity="start" />
+        android:textColor="#9fff" />
+
+    <com.devspark.robototextview.widget.RobotoTextView
+        android:id="@+id/classroom"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        app:typeface="roboto_condensed_bold"
+        android:textSize="16sp"
+        android:paddingTop="16dp"
+        android:paddingRight="16dp"
+        android:textColor="#fff"
+        android:text="CLASS"
+        android:gravity="right"
+        android:layout_alignParentRight="true" />
+
+    <com.devspark.robototextview.widget.RobotoTextView
+        android:id="@+id/lesson_classroom"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        app:typeface="roboto_regular"
+        android:textSize="16sp"
+        android:paddingBottom="16dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:textColor="#fff"
+        android:gravity="right"
+        android:layout_alignParentRight="true"
+        android:layout_below="@id/classroom" />
 
     <com.devspark.robototextview.widget.RobotoTextView
         android:id="@+id/lesson_name"
@@ -27,6 +55,10 @@
         android:paddingBottom="16dp"
         android:paddingRight="16dp"
         android:paddingLeft="16dp"
-        android:textColor="#fff" />
+        android:textColor="#fff"
+        android:layout_toRightOf="@id/lesson_start"
+        android:layout_toLeftOf="@id/classroom"
+        android:layout_centerVertical="true"
+        android:singleLine="true" />
 
-</LinearLayout>
+</RelativeLayout>
