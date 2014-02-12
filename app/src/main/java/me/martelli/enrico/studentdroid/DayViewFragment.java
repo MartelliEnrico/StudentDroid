@@ -1,9 +1,7 @@
 package me.martelli.enrico.studentdroid;
 
-import android.app.Fragment;
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Color;
+import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -12,29 +10,24 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.ArrayList;
+import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
-import java.util.TimeZone;
 
-import me.martelli.enrico.studentdroid.listener.OnClickListenerCounter;
-import me.martelli.enrico.studentdroid.sqlite.helper.DatabaseOpenHelper;
-import me.martelli.enrico.studentdroid.sqlite.helper.DebugDbSeeder;
+import me.martelli.enrico.studentdroid.listener.CompitoOnClickListenerCounter;
+import me.martelli.enrico.studentdroid.listener.MateriaOnClickListenerCounter;
+import me.martelli.enrico.studentdroid.sqlite.model.Compito;
 import me.martelli.enrico.studentdroid.sqlite.model.Lezione;
-import me.martelli.enrico.studentdroid.sqlite.model.Materia;
+import me.martelli.enrico.studentdroid.sqlite.model.adapter.CompitoArrayAdapter;
 import me.martelli.enrico.studentdroid.sqlite.model.adapter.LezioneArrayAdapter;
 
 public class DayViewFragment extends Fragment {
 
     LinearLayout mLessonsLinearLayout;
-    Button mAddSampleLessons;
-    Button mClearSampleLessons;
+    LinearLayout mHomeworkLinearLayout;
 
     public DayViewFragment() {
     }
@@ -49,8 +42,16 @@ public class DayViewFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         getActivity().getActionBar().setTitle(R.string.title_section1);
-
         View rootView = inflater.inflate(R.layout.fragment_day_view, container, false);
+
+        String day = new SimpleDateFormat("EEEE").format(new Date());
+        String full = new SimpleDateFormat("dd MMM yyyy").format(new Date());
+
+        TextView todayDay = (TextView) rootView.findViewById(R.id.today_day);
+        todayDay.setText(day);
+
+        TextView fullDate = (TextView) rootView.findViewById(R.id.today_full_date);
+        fullDate.setText(full);
 
         mLessonsLinearLayout = (LinearLayout) rootView.findViewById(R.id.lessons_list);
 
@@ -58,9 +59,15 @@ public class DayViewFragment extends Fragment {
                 getActivity().getBaseContext(), Lezione.oggi()
         );
 
+        if(lezioneArrayAdapter.getCount() == 0) {
+            TextView empty = (TextView) inflater.inflate(R.layout.empty_item, mLessonsLinearLayout, false);
+            empty.setText("No school for today :)");
+            mLessonsLinearLayout.addView(empty);
+        }
+
         for(int i = 0; i < lezioneArrayAdapter.getCount(); i++) {
-            View view = lezioneArrayAdapter.getView(i, null, null);
-            view.setOnClickListener(new OnClickListenerCounter(i));
+            View view = lezioneArrayAdapter.getView(i, null, mLessonsLinearLayout);
+            view.setOnClickListener(new MateriaOnClickListenerCounter(i));
             view.setOnTouchListener(new View.OnTouchListener() {
                 @Override
                 public boolean onTouch(View view, MotionEvent motionEvent) {
@@ -78,54 +85,28 @@ public class DayViewFragment extends Fragment {
             mLessonsLinearLayout.addView(view);
         }
 
-        mAddSampleLessons = (Button) rootView.findViewById(R.id.add_sample_lessons);
+        mHomeworkLinearLayout = (LinearLayout) rootView.findViewById(R.id.homework_list);
 
-        mAddSampleLessons.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                DebugDbSeeder.seed();
+        mHomeworkLinearLayout.addView(inflater.inflate(R.layout.homework_header, null));
 
-                mLessonsLinearLayout.removeAllViews();
+        CompitoArrayAdapter compitoArrayAdapter = new CompitoArrayAdapter(
+                getActivity().getBaseContext(), Compito.rimanenti()
+        );
 
-                LezioneArrayAdapter lezioneArrayAdapter = new LezioneArrayAdapter(
-                        getActivity().getBaseContext(), Lezione.oggi()
-                );
+        if(compitoArrayAdapter.getCount() == 0) {
+            TextView empty = (TextView) inflater.inflate(R.layout.empty_item, mLessonsLinearLayout, false);
+            empty.setText("No homework left :)");
+            mHomeworkLinearLayout.addView(empty);
+        }
 
-                for(int i = 0; i < lezioneArrayAdapter.getCount(); i++) {
-                    View v = lezioneArrayAdapter.getView(i, null, null);
-                    v.setOnClickListener(new OnClickListenerCounter(i));
-                    v.setOnTouchListener(new View.OnTouchListener() {
-                        @Override
-                        public boolean onTouch(View view, MotionEvent motionEvent) {
-                            switch(motionEvent.getAction()) {
-                                case MotionEvent.ACTION_DOWN:
-                                    view.setAlpha(0.9f);
-                                    break;
-                                case MotionEvent.ACTION_UP:
-                                    view.setAlpha(1);
-                                    break;
-                            }
-                            return false;
-                        }
-                    });
-                    mLessonsLinearLayout.addView(v);
-                }
+        for(int i = 0; i < compitoArrayAdapter.getCount(); i++) {
+            View view = compitoArrayAdapter.getView(i, null, mHomeworkLinearLayout);
+            view.setOnClickListener(new CompitoOnClickListenerCounter(i));
+            mHomeworkLinearLayout.addView(view);
+            if(i < compitoArrayAdapter.getCount() - 1) {
+                mHomeworkLinearLayout.addView(inflater.inflate(R.layout.separator, mHomeworkLinearLayout, false));
             }
-        });
-
-        mClearSampleLessons = (Button) rootView.findViewById(R.id.remove_sample_lessons);
-
-        mClearSampleLessons.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                SQLiteDatabase db = new DatabaseOpenHelper(getActivity().getBaseContext()).getWritableDatabase();
-
-                db.execSQL("DELETE FROM lezioni");
-                db.execSQL("DELETE FROM materie");
-
-                mLessonsLinearLayout.removeAllViews();
-            }
-        });
+        }
 
         return rootView;
     }
@@ -142,7 +123,8 @@ public class DayViewFragment extends Fragment {
         // as you specify a parent activity in AndroidManifest.xml.
         switch(item.getItemId()) {
             case R.id.action_add_homework:
-                Toast.makeText(getActivity(), "Add homework", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(getActivity(), AddHomeworkActivity.class);
+                startActivity(intent);
                 return true;
             case R.id.action_add_exam:
                 Toast.makeText(getActivity(), "Add exam", Toast.LENGTH_SHORT).show();

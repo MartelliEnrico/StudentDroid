@@ -3,21 +3,14 @@ package me.martelli.enrico.studentdroid.sqlite.helper;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.DatabaseErrorHandler;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-import java.text.DateFormat;
-import java.text.FieldPosition;
-import java.text.ParseException;
-import java.text.ParsePosition;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 import me.martelli.enrico.studentdroid.sqlite.model.Compito;
 import me.martelli.enrico.studentdroid.sqlite.model.Lezione;
@@ -319,8 +312,8 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
         Lezione lezione = new Lezione();
         lezione.setId(c.getInt(c.getColumnIndex(KEY_ID)));
         lezione.setGiorno(c.getInt(c.getColumnIndex(KEY_GIORNO)));
-        lezione.setInizio(new Date(c.getInt(c.getColumnIndex(KEY_ORA_INIZIO))));
-        lezione.setFine(new Date(c.getInt(c.getColumnIndex(KEY_ORA_FINE))));
+        lezione.setInizio(new Date(c.getLong(c.getColumnIndex(KEY_ORA_INIZIO))));
+        lezione.setFine(new Date(c.getLong(c.getColumnIndex(KEY_ORA_FINE))));
         lezione.setClasse(c.getString(c.getColumnIndex(KEY_CLASSE)));
         lezione.setDescrizione(c.getString(c.getColumnIndex(KEY_DESCRIZIONE)));
         lezione.setIdMateria(c.getInt(c.getColumnIndex(KEY_ID_MATERIA)));
@@ -343,8 +336,8 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
                 Lezione lezione = new Lezione();
                 lezione.setId(c.getInt(c.getColumnIndex(KEY_ID)));
                 lezione.setGiorno(c.getInt(c.getColumnIndex(KEY_GIORNO)));
-                lezione.setInizio(new Date(c.getInt(c.getColumnIndex(KEY_ORA_INIZIO))));
-                lezione.setFine(new Date(c.getInt(c.getColumnIndex(KEY_ORA_FINE))));
+                lezione.setInizio(new Date(c.getLong(c.getColumnIndex(KEY_ORA_INIZIO))));
+                lezione.setFine(new Date(c.getLong(c.getColumnIndex(KEY_ORA_FINE))));
                 lezione.setClasse(c.getString(c.getColumnIndex(KEY_CLASSE)));
                 lezione.setDescrizione(c.getString(c.getColumnIndex(KEY_DESCRIZIONE)));
                 lezione.setIdMateria(c.getInt(c.getColumnIndex(KEY_ID_MATERIA)));
@@ -376,8 +369,8 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
                 Lezione lezione = new Lezione();
                 lezione.setId(c.getInt(c.getColumnIndex(KEY_ID)));
                 lezione.setGiorno(c.getInt(c.getColumnIndex(KEY_GIORNO)));
-                lezione.setInizio(new Date(c.getInt(c.getColumnIndex(KEY_ORA_INIZIO))));
-                lezione.setFine(new Date(c.getInt(c.getColumnIndex(KEY_ORA_FINE))));
+                lezione.setInizio(new Date(c.getLong(c.getColumnIndex(KEY_ORA_INIZIO))));
+                lezione.setFine(new Date(c.getLong(c.getColumnIndex(KEY_ORA_FINE))));
                 lezione.setClasse(c.getString(c.getColumnIndex(KEY_CLASSE)));
                 lezione.setDescrizione(c.getString(c.getColumnIndex(KEY_DESCRIZIONE)));
                 lezione.setIdMateria(c.getInt(c.getColumnIndex(KEY_ID_MATERIA)));
@@ -437,7 +430,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
 
         Compito compito = new Compito();
         compito.setId(c.getInt(c.getColumnIndex(KEY_ID)));
-        compito.setGiorno(new Date(c.getInt(c.getColumnIndex(KEY_GIORNO))));
+        compito.setGiorno(new Date(c.getLong(c.getColumnIndex(KEY_GIORNO))));
         compito.setDescrizione(c.getString(c.getColumnIndex(KEY_DESCRIZIONE)));
         compito.setIdLezione(c.getInt(c.getColumnIndex(KEY_ID_LEZIONE)));
 
@@ -458,7 +451,36 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
             do {
                 Compito compito = new Compito();
                 compito.setId(c.getInt(c.getColumnIndex(KEY_ID)));
-                compito.setGiorno(new Date(c.getInt(c.getColumnIndex(KEY_GIORNO))));
+                compito.setGiorno(new Date(c.getLong(c.getColumnIndex(KEY_GIORNO))));
+                compito.setDescrizione(c.getString(c.getColumnIndex(KEY_DESCRIZIONE)));
+                compito.setIdLezione(c.getInt(c.getColumnIndex(KEY_ID_LEZIONE)));
+
+                compiti.add(compito);
+            } while(c.moveToNext());
+        }
+
+        return compiti;
+    }
+
+    public List<Compito> getNextCompiti() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        List<Compito> compiti = new ArrayList<Compito>();
+
+        Date oggi = new Date();
+        long oggiTime = oggi.getTime() - (oggi.getTime() % (1000 * 60 * 60 * 24));
+
+        String selectQuery = "SELECT * FROM " + TABLE_COMPITO + " WHERE " + KEY_GIORNO + " >= "
+                + oggiTime + " ORDER BY " + KEY_GIORNO + " ASC";
+
+        Log.e(LOG, selectQuery);
+
+        Cursor c = db.rawQuery(selectQuery, null);
+
+        if(c != null && c.moveToFirst()) {
+            do {
+                Compito compito = new Compito();
+                compito.setId(c.getInt(c.getColumnIndex(KEY_ID)));
+                compito.setGiorno(new Date(c.getLong(c.getColumnIndex(KEY_GIORNO))));
                 compito.setDescrizione(c.getString(c.getColumnIndex(KEY_DESCRIZIONE)));
                 compito.setIdLezione(c.getInt(c.getColumnIndex(KEY_ID_LEZIONE)));
 
@@ -514,7 +536,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
 
         Verifica verifica = new Verifica();
         verifica.setId(c.getInt(c.getColumnIndex(KEY_ID)));
-        verifica.setGiorno(new Date(c.getInt(c.getColumnIndex(KEY_GIORNO))));
+        verifica.setGiorno(new Date(c.getLong(c.getColumnIndex(KEY_GIORNO))));
         verifica.setTipologia(c.getString(c.getColumnIndex(KEY_TIPOLOGIA)));
         verifica.setIdLezione(c.getInt(c.getColumnIndex(KEY_ID_LEZIONE)));
 
@@ -535,7 +557,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
             do {
                 Verifica verifica = new Verifica();
                 verifica.setId(c.getInt(c.getColumnIndex(KEY_ID)));
-                verifica.setGiorno(new Date(c.getInt(c.getColumnIndex(KEY_GIORNO))));
+                verifica.setGiorno(new Date(c.getLong(c.getColumnIndex(KEY_GIORNO))));
                 verifica.setTipologia(c.getString(c.getColumnIndex(KEY_TIPOLOGIA)));
                 verifica.setIdLezione(c.getInt(c.getColumnIndex(KEY_ID_LEZIONE)));
 
@@ -741,8 +763,8 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
 
         Vacanza vacanza = new Vacanza();
         vacanza.setId(c.getInt(c.getColumnIndex(KEY_ID)));
-        vacanza.setInizio(new Date(c.getInt(c.getColumnIndex(KEY_GIORNO_INIZIO))));
-        vacanza.setFine(new Date(c.getInt(c.getColumnIndex(KEY_GIORNO_FINE))));
+        vacanza.setInizio(new Date(c.getLong(c.getColumnIndex(KEY_GIORNO_INIZIO))));
+        vacanza.setFine(new Date(c.getLong(c.getColumnIndex(KEY_GIORNO_FINE))));
         vacanza.setDescrizione(c.getString(c.getColumnIndex(KEY_DESCRIZIONE)));
 
         return vacanza;
@@ -762,8 +784,8 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
             do {
                 Vacanza vacanza = new Vacanza();
                 vacanza.setId(c.getInt(c.getColumnIndex(KEY_ID)));
-                vacanza.setInizio(new Date(c.getInt(c.getColumnIndex(KEY_GIORNO_INIZIO))));
-                vacanza.setFine(new Date(c.getInt(c.getColumnIndex(KEY_GIORNO_FINE))));
+                vacanza.setInizio(new Date(c.getLong(c.getColumnIndex(KEY_GIORNO_INIZIO))));
+                vacanza.setFine(new Date(c.getLong(c.getColumnIndex(KEY_GIORNO_FINE))));
                 vacanza.setDescrizione(c.getString(c.getColumnIndex(KEY_DESCRIZIONE)));
 
                 vacanze.add(vacanza);

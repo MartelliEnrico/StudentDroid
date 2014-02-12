@@ -8,10 +8,11 @@
     android:orientation="horizontal"
     android:clickable="true" >
 
-    <TextView
+    <com.devspark.robototextview.widget.RobotoTextView
         android:id="@+id/lesson_start"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
+        app:typeface="roboto_regular"
         android:textSize="16sp"
         android:paddingTop="16dp"
         android:paddingBottom="2dp"

@@ -24,12 +24,16 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".MateriaActivity"
+            android:name="me.martelli.enrico.studentdroid.MateriaActivity"
             android:label="@string/title_activity_lesson_recap"
             android:parentActivityName="me.martelli.enrico.studentdroid.MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="MainActivity" />
+        </activity>
+        <activity
+            android:name=".AddHomeworkActivity"
+            android:label="@string/title_activity_add_homework" >
         </activity>
     </application>
 

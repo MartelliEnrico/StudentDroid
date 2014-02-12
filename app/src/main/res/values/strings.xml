@@ -2,15 +2,23 @@
 <resources>
 
     <string name="app_name">Student Droid</string>
+
     <string name="action_add_homework">Add homework</string>
     <string name="action_add_exam">Add exam</string>
     <string name="action_settings">Settings</string>
+
     <string name="title_section1">Day View</string>
     <string name="title_section2">Week View</string>
     <string name="title_section3">Homework &amp; Exams</string>
     <string name="title_section4">Votes</string>
+
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
-    <string name="title_activity_lesson_recap">LessonRecapActivity</string>
+
+    <string name="title_activity_lesson_recap">Subject</string>
+    <string name="title_activity_add_homework">Add a new Homework</string>
+
+    <string name="cancel">Cancel</string>
+    <string name="done">Done</string>
 
 </resources>

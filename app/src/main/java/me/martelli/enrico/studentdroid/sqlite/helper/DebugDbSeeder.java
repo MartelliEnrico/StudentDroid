@@ -5,6 +5,7 @@ import android.graphics.Color;
 import java.util.Date;
 import java.util.Random;
 
+import me.martelli.enrico.studentdroid.sqlite.model.Compito;
 import me.martelli.enrico.studentdroid.sqlite.model.Lezione;
 import me.martelli.enrico.studentdroid.sqlite.model.Materia;
 
@@ -68,6 +69,7 @@ public class DebugDbSeeder {
                 (int) inglese.getId()
         );
         lezione.save();
+        int idInglese = (int) lezione.getId();
 
         lezione = new Lezione(
                 4,
@@ -319,9 +321,24 @@ public class DebugDbSeeder {
                 ora(5),
                 "307",
                 null,
-                (int) sistemi.getId()
+                (int) statistica.getId()
         );
         lezione.save();
+        int idStatistica = (int) lezione.getId();
+
+        Compito compito = new Compito(
+                new Date(),
+                "Studiare statistica",
+                idStatistica
+        );
+        compito.save();
+
+        compito = new Compito(
+                new Date(new Date().getTime() + (1000 * 60 * 60 * 24 * 2)),
+                "Fare il riassunto di Mandela",
+                idInglese
+        );
+        compito.save();
     }
 
     public static int randomColor() {

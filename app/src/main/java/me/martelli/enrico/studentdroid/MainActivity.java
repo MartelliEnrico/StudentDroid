@@ -1,9 +1,9 @@
 package me.martelli.enrico.studentdroid;
 
-import android.app.Activity;
-import android.app.Fragment;
+import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.view.Menu;
@@ -15,7 +15,7 @@ import android.widget.Toast;
 
 import me.martelli.enrico.studentdroid.sqlite.helper.DatabaseOpenHelper;
 
-public class MainActivity extends Activity {
+public class MainActivity extends FragmentActivity {
 
     private static final String CURRENT_FRAGMENT = "current_fragment";
 
@@ -121,7 +121,7 @@ public class MainActivity extends Activity {
                         break;
                 }
 
-                getFragmentManager().beginTransaction()
+                getSupportFragmentManager().beginTransaction()
                         .replace(R.id.container, fragment)
                         .commit();
 
@@ -133,7 +133,7 @@ public class MainActivity extends Activity {
         });
 
         if(savedInstanceState == null) {
-            getFragmentManager().beginTransaction()
+            getSupportFragmentManager().beginTransaction()
                     .add(R.id.container, new DayViewFragment())
                     .commit();
         }
@@ -202,7 +202,7 @@ public class MainActivity extends Activity {
                 break;
         }
 
-        getFragmentManager().beginTransaction()
+        getSupportFragmentManager().beginTransaction()
                 .replace(R.id.container, fragment)
                 .commit();
 
@@ -240,7 +240,7 @@ public class MainActivity extends Activity {
                 break;
         }
 
-        getFragmentManager().beginTransaction()
+        getSupportFragmentManager().beginTransaction()
                 .replace(R.id.container, fragment)
                 .commit();
 

@@ -1,22 +1,18 @@
 package me.martelli.enrico.studentdroid;
 
-import android.app.Activity;
-import android.app.ActionBar;
-import android.app.Fragment;
 import android.os.Bundle;
-import android.view.LayoutInflater;
+import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import me.martelli.enrico.studentdroid.drawable.ActionBarDrawable;
-import me.martelli.enrico.studentdroid.listener.OnClickListenerCounter;
+import me.martelli.enrico.studentdroid.listener.MateriaOnClickListenerCounter;
 import me.martelli.enrico.studentdroid.sqlite.model.Lezione;
 import me.martelli.enrico.studentdroid.sqlite.model.Materia;
 
-public class MateriaActivity extends Activity {
+public class MateriaActivity extends FragmentActivity {
 
     Materia materia;
     Lezione lezione;
@@ -24,21 +20,21 @@ public class MateriaActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_lesson_recap);
+        setContentView(R.layout.activity_show_materia);
 
-        int position = getIntent().getExtras().getInt(OnClickListenerCounter.ID_LEZIONE);
-        lezione = Lezione.oggi().get(position);
+        int idLezione = getIntent().getExtras().getInt(MateriaOnClickListenerCounter.ID_LEZIONE);
+        lezione = Lezione.find(idLezione);
         materia = Materia.find(lezione.getIdMateria());
 
         getActionBar().setBackgroundDrawable(new ActionBarDrawable(materia.getColore()));
 
         setTitle(materia.getNome());
 
-        if (savedInstanceState == null) {
-            getFragmentManager().beginTransaction()
-                    .add(R.id.container, new MateriaFragment().newInstace(materia, lezione))
-                    .commit();
-        }
+        TextView nome = (TextView) findViewById(R.id.materia_nome);
+        nome.setText(materia.getNome());
+
+        TextView nomeProfessore = (TextView) findViewById(R.id.materia_nome_professore);
+        nomeProfessore.setText(materia.getNomeProfessore());
     }
 
     @Override

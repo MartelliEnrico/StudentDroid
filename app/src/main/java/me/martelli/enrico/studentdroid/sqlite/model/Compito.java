@@ -55,4 +55,8 @@ public class Compito extends DbModel {
     public static List<Compito> all() {
         return new DatabaseOpenHelper(MyApplication.getAppContext()).getAllCompiti();
     }
+
+    public static List<Compito> rimanenti() {
+        return new DatabaseOpenHelper(MyApplication.getAppContext()).getNextCompiti();
+    }
 }
